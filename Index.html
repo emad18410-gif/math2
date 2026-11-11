@@ -1,0 +1,3914 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Prep 2 - First Term Mastery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        .custom-shadow { box-shadow: 0 10px 25px -5px rgba(0,0,0,.1), 0 8px 10px -6px rgba(0,0,0,.1); }
+        canvas.scratchpad { touch-action: none; background: #fffbeb; }
+        button:focus-visible, input:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white shadow-md">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl">📐</span>
+                <div>
+                    <h1 class="text-xl font-bold">Math Prep 2 - First Term</h1>
+                    <p id="headerSub" class="text-xs text-indigo-200">Interactive Master Question Bank</p>
+                </div>
+            </div>
+            <div id="statsWrap" class="hidden">
+                <div class="flex items-center gap-3 bg-indigo-700/60 px-4 py-2 rounded-xl border border-indigo-500">
+                    <div class="text-center max-w-[110px]">
+                        <span class="block text-xs text-indigo-200">Student</span>
+                        <span id="userDisplay" class="font-bold text-sm block truncate"></span>
+                    </div>
+                    <div class="h-8 w-[1px] bg-indigo-500"></div>
+                    <div class="text-center">
+                        <span class="block text-xs text-indigo-200">Score</span>
+                        <span id="scoreDisplay" class="font-bold text-lg">0</span>
+                    </div>
+                    <div class="h-8 w-[1px] bg-indigo-500"></div>
+                    <div class="text-center">
+                        <span class="block text-xs text-indigo-200">Streak</span>
+                        <span id="streakDisplay" class="font-bold text-lg">🔥 0</span>
+                    </div>
+                    <div class="h-8 w-[1px] bg-indigo-500"></div>
+                    <button type="button" onclick="toggleScratchpad()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow transition">✏️ Scratchpad</button>
+                    <button type="button" onclick="logout()" class="bg-indigo-800 hover:bg-indigo-900 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">Switch</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-5xl w-full mx-auto px-4 py-6">
+
+        <!-- Login / Introduce yourself -->
+        <div id="loginView" class="hidden max-w-md mx-auto mt-6 bg-white rounded-2xl custom-shadow p-6 sm:p-8">
+            <div class="text-center mb-6">
+                <div class="text-5xl mb-3">👋</div>
+                <h2 class="text-2xl font-bold text-slate-800">Introduce yourself</h2>
+                <p class="text-sm text-slate-500 mt-1">Tell us who you are, then start practicing. Your score is saved on this device.</p>
+            </div>
+            <form id="loginForm" class="space-y-4" novalidate>
+                <div>
+                    <label for="nameInput" class="block text-sm font-semibold text-slate-700 mb-1">Your name</label>
+                    <input id="nameInput" type="text" maxlength="40" autocomplete="name" placeholder="e.g. Omar Ali"
+                           class="w-full border border-slate-300 rounded-xl px-4 py-3 focus:border-indigo-500">
+                </div>
+                <div>
+                    <label for="classInput" class="block text-sm font-semibold text-slate-700 mb-1">Class or school <span class="font-normal text-slate-400">(optional)</span></label>
+                    <input id="classInput" type="text" maxlength="40" placeholder="e.g. 2/3 - Al Nasr School"
+                           class="w-full border border-slate-300 rounded-xl px-4 py-3 focus:border-indigo-500">
+                </div>
+                <p id="loginError" class="hidden text-sm text-rose-600 font-medium">Enter your name to continue.</p>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-semibold shadow transition">Start learning →</button>
+            </form>
+            <div class="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
+                Designed by student <span class="font-semibold text-indigo-600">Ahmed Emad Hamdy</span>
+                <div dir="rtl" class="mt-0.5">تصميم الطالب أحمد عماد حمدي</div>
+            </div>
+        </div>
+
+        <!-- Unit Selection (home) -->
+        <div id="unitSelectionView" class="hidden">
+            <div class="mb-6 bg-white border border-indigo-100 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <p id="welcomeText" class="font-semibold text-slate-700"></p>
+                <p class="text-sm text-slate-500">
+                    Designed by student <span class="font-semibold text-indigo-600">Ahmed Emad Hamdy</span>
+                    <span dir="rtl" class="block sm:inline sm:mr-2">· تصميم الطالب أحمد عماد حمدي</span>
+                </p>
+            </div>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-700">Select a Unit</h2>
+                <span id="totalQuestionsBadge" class="bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full"></span>
+            </div>
+            <div id="unitsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </div>
+
+        <!-- Lesson Selection -->
+        <div id="lessonSelectionView" class="hidden">
+            <button type="button" onclick="backToUnits()" class="mb-4 text-indigo-600 hover:text-indigo-800 font-semibold">← Back to Units</button>
+            <h2 id="selectedUnitTitle" class="text-2xl font-bold mb-6 text-slate-700"></h2>
+            <div id="lessonsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+
+        <!-- Quiz -->
+        <div id="quizView" class="hidden max-w-2xl mx-auto bg-white rounded-2xl custom-shadow p-6 sm:p-8">
+            <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                <button type="button" onclick="backToLessons()" class="text-slate-500 hover:text-slate-700 text-sm font-medium">✕ Quit Quiz</button>
+                <span id="questionProgress" class="text-sm font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full"></span>
+            </div>
+            <div id="questionContainer" class="mb-6">
+                <h3 id="questionText" class="text-lg font-semibold text-slate-900 mb-6 leading-relaxed"></h3>
+                <div id="optionsContainer" class="space-y-3"></div>
+            </div>
+            <div id="explanationContainer" class="hidden mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <h4 class="font-bold text-sm mb-1 text-slate-700">Explanation:</h4>
+                <p id="explanationText" class="text-sm text-slate-600"></p>
+            </div>
+            <div class="flex justify-end">
+                <button id="nextBtn" type="button" onclick="nextQuestion()" class="hidden bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow transition">Next Question →</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scratchpad -->
+    <div id="scratchpadModal" class="hidden">
+        <div id="scratchBackdrop" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl w-full max-w-xl p-4 shadow-2xl flex flex-col">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-slate-700">✏️ Scratchpad (Math Rough Work)</h3>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="clearCanvas()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1 rounded-lg">Clear</button>
+                        <button type="button" onclick="toggleScratchpad()" class="text-xs bg-rose-500 hover:bg-rose-600 text-white px-3 py-1 rounded-lg">Close</button>
+                    </div>
+                </div>
+                <div class="border-2 border-dashed border-amber-200 rounded-xl overflow-hidden">
+                    <canvas id="scratchCanvas" class="scratchpad w-full h-80 cursor-crosshair block"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        Math Prep 2 First Term Mastery &bull; Designed by student Ahmed Emad Hamdy
+    </footer>
+
+    <script>
+        const masterData = {
+  "title": "Mathematics - Second Preparatory - First Term - MCQ Question Bank",
+  "total": 206,
+  "questions": [
+    {
+      "id": 1,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-1",
+      "lesson_title": "Real Numbers",
+      "question": "Which of the following numbers is irrational?",
+      "options": [
+        "√7",
+        "0.25",
+        "∛27",
+        "√16"
+      ],
+      "answer_index": 0,
+      "answer": "√7",
+      "explanation": "√7 is not a perfect square root, so it cannot be written as a/b."
+    },
+    {
+      "id": 2,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-1",
+      "lesson_title": "Real Numbers",
+      "question": "The number √11 lies between which two consecutive integers?",
+      "options": [
+        "4 and 5",
+        "3 and 4",
+        "2 and 3",
+        "11 and 12"
+      ],
+      "answer_index": 1,
+      "answer": "3 and 4",
+      "explanation": "9 < 11 < 16, so 3 < √11 < 4."
+    },
+    {
+      "id": 3,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-1",
+      "lesson_title": "Real Numbers",
+      "question": "Estimating √41 to the closest integer gives:",
+      "options": [
+        "41",
+        "5",
+        "6",
+        "7"
+      ],
+      "answer_index": 2,
+      "answer": "6",
+      "explanation": "36 < 41 < 49 and 41 is closer to 36, so √41 ≈ 6."
+    },
+    {
+      "id": 4,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-1",
+      "lesson_title": "Real Numbers",
+      "question": "The number ∛20 lies between:",
+      "options": [
+        "1 and 2",
+        "3 and 4",
+        "20 and 21",
+        "2 and 3"
+      ],
+      "answer_index": 3,
+      "answer": "2 and 3",
+      "explanation": "8 < 20 < 27, so 2 < ∛20 < 3."
+    },
+    {
+      "id": 5,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-1",
+      "lesson_title": "Real Numbers",
+      "question": "The solution set of x² − 3 = 2 where x ∈ ℚ′ is:",
+      "options": [
+        "{√5, −√5}",
+        "{5, −5}",
+        "{√5}",
+        "∅"
+      ],
+      "answer_index": 0,
+      "answer": "{√5, −√5}",
+      "explanation": "x² = 5, so x = ±√5, and both are irrational."
+    },
+    {
+      "id": 6,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-1",
+      "lesson_title": "Real Numbers",
+      "question": "The solution set of x² + 1 = −4 where x ∈ ℝ is:",
+      "options": [
+        "{5}",
+        "∅",
+        "{−5}",
+        "{−√5, √5}"
+      ],
+      "answer_index": 1,
+      "answer": "∅",
+      "explanation": "x² = −5, and a square cannot be negative in ℝ."
+    },
+    {
+      "id": 7,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-1",
+      "lesson_title": "Real Numbers",
+      "question": "Which set does √3 belong to?",
+      "options": [
+        "ℤ",
+        "ℚ",
+        "ℚ′",
+        "ℕ"
+      ],
+      "answer_index": 2,
+      "answer": "ℚ′",
+      "explanation": "√3 is irrational, so it belongs to ℚ′ (and ℝ)."
+    },
+    {
+      "id": 8,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-1",
+      "lesson_title": "Real Numbers",
+      "question": "Which of the following is the largest number?",
+      "options": [
+        "3.1",
+        "∛30",
+        "√10",
+        "3.2"
+      ],
+      "answer_index": 3,
+      "answer": "3.2",
+      "explanation": "√10 ≈ 3.16, ∛30 ≈ 3.11, so 3.2 is largest."
+    },
+    {
+      "id": 9,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-1",
+      "lesson_title": "Real Numbers",
+      "question": "A square has an area of 29 cm². Its side length belongs to the set:",
+      "options": [
+        "ℚ′",
+        "ℚ",
+        "ℕ",
+        "ℤ"
+      ],
+      "answer_index": 0,
+      "answer": "ℚ′",
+      "explanation": "Side = √29, which is irrational."
+    },
+    {
+      "id": 10,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-1",
+      "lesson_title": "Real Numbers",
+      "question": "If n is an integer and n < √17 < n + 1, then n =",
+      "options": [
+        "17",
+        "4",
+        "5",
+        "3"
+      ],
+      "answer_index": 1,
+      "answer": "4",
+      "explanation": "16 < 17 < 25, so 4 < √17 < 5."
+    },
+    {
+      "id": 11,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-1",
+      "lesson_title": "Real Numbers",
+      "question": "The solution set of 2x² + 13 = 67 where x ∈ ℝ is:",
+      "options": [
+        "{√27}",
+        "{3, −3}",
+        "{3√3, −3√3}",
+        "∅"
+      ],
+      "answer_index": 2,
+      "answer": "{3√3, −3√3}",
+      "explanation": "2x² = 54, x² = 27, x = ±√27 = ±3√3."
+    },
+    {
+      "id": 12,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-1",
+      "lesson_title": "Real Numbers",
+      "question": "Which statement is true?",
+      "options": [
+        "ℤ ⊂ ℕ",
+        "ℝ ⊂ ℚ",
+        "ℚ′ ⊂ ℚ",
+        "ℚ′ ⊂ ℝ"
+      ],
+      "answer_index": 3,
+      "answer": "ℚ′ ⊂ ℝ",
+      "explanation": "ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ and ℚ′ ⊂ ℝ."
+    },
+    {
+      "id": 13,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-2",
+      "lesson_title": "Intervals and Their Operations",
+      "question": "If X = [−1, 3] and Y = [1, 4], then X ∪ Y =",
+      "options": [
+        "[−1, 4]",
+        "[1, 3]",
+        "]3, 4]",
+        "[−1, 1["
+      ],
+      "answer_index": 0,
+      "answer": "[−1, 4]",
+      "explanation": "The union covers everything in either set."
+    },
+    {
+      "id": 14,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-2",
+      "lesson_title": "Intervals and Their Operations",
+      "question": "If X = [−1, 3] and Y = [1, 4], then X ∩ Y =",
+      "options": [
+        "[−1, 4]",
+        "[1, 3]",
+        "]3, 4]",
+        "[−1, 1["
+      ],
+      "answer_index": 1,
+      "answer": "[1, 3]",
+      "explanation": "The intersection is the common part: from 1 to 3 inclusive."
+    },
+    {
+      "id": 15,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-2",
+      "lesson_title": "Intervals and Their Operations",
+      "question": "If X = [−1, 3] and Y = [1, 4], then X − Y =",
+      "options": [
+        "]3, 4]",
+        "[1, 3]",
+        "[−1, 1[",
+        "[−1, 1]"
+      ],
+      "answer_index": 2,
+      "answer": "[−1, 1[",
+      "explanation": "Elements of X that are not in Y; 1 belongs to Y so it is excluded."
+    },
+    {
+      "id": 16,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-2",
+      "lesson_title": "Intervals and Their Operations",
+      "question": "]2, 5[ ∪ {2} =",
+      "options": [
+        "]2, 5]",
+        "[2, 5]",
+        "]2, 5[",
+        "[2, 5["
+      ],
+      "answer_index": 3,
+      "answer": "[2, 5[",
+      "explanation": "Adding 2 closes the left end only."
+    },
+    {
+      "id": 17,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-2",
+      "lesson_title": "Intervals and Their Operations",
+      "question": "If X = [−5, 7[, which statement is true?",
+      "options": [
+        "−5 ∈ X",
+        "8 ∈ X",
+        "−5 ∉ X",
+        "7 ∈ X"
+      ],
+      "answer_index": 0,
+      "answer": "−5 ∈ X",
+      "explanation": "The left end is closed (included); the right end 7 is open."
+    },
+    {
+      "id": 18,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-2",
+      "lesson_title": "Intervals and Their Operations",
+      "question": "The set {x : x ∈ ℝ, x ≥ 2} is written as:",
+      "options": [
+        "]2, ∞[",
+        "[2, ∞[",
+        "]−∞, 2[",
+        "]−∞, 2]"
+      ],
+      "answer_index": 1,
+      "answer": "[2, ∞[",
+      "explanation": "x ≥ 2 includes 2 and extends to infinity."
+    },
+    {
+      "id": 19,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-2",
+      "lesson_title": "Intervals and Their Operations",
+      "question": "The complement of ]−∞, 3[ with respect to ℝ is:",
+      "options": [
+        "]−∞, ∞[",
+        "]−∞, 3]",
+        "[3, ∞[",
+        "]3, ∞["
+      ],
+      "answer_index": 2,
+      "answer": "[3, ∞[",
+      "explanation": "ℝ − ]−∞, 3[ = [3, ∞[."
+    },
+    {
+      "id": 20,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-2",
+      "lesson_title": "Intervals and Their Operations",
+      "question": "ℝ ∩ ]2, 5[ =",
+      "options": [
+        "∅",
+        "[2, 5]",
+        "ℝ",
+        "]2, 5["
+      ],
+      "answer_index": 3,
+      "answer": "]2, 5[",
+      "explanation": "Every element of ]2, 5[ is real, so the intersection is ]2, 5[."
+    },
+    {
+      "id": 21,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-2",
+      "lesson_title": "Intervals and Their Operations",
+      "question": "ℤ ∩ ]−1, 2] =",
+      "options": [
+        "{0, 1, 2}",
+        "{−1, 0, 1, 2}",
+        "]−1, 2]",
+        "{0, 1}"
+      ],
+      "answer_index": 0,
+      "answer": "{0, 1, 2}",
+      "explanation": "Integers greater than −1 and up to 2."
+    },
+    {
+      "id": 22,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-2",
+      "lesson_title": "Intervals and Their Operations",
+      "question": "ℕ ∩ [−3, 0[ =",
+      "options": [
+        "{1, 2, 3}",
+        "∅",
+        "{0}",
+        "{−3, −2, −1}"
+      ],
+      "answer_index": 1,
+      "answer": "∅",
+      "explanation": "There are no natural numbers in [−3, 0[."
+    },
+    {
+      "id": 23,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-2",
+      "lesson_title": "Intervals and Their Operations",
+      "question": "A job requires applicants to be at least 25 and at most 45 years old. This is the interval:",
+      "options": [
+        "]25, 45[",
+        "]25, 45]",
+        "[25, 45]",
+        "[25, 45["
+      ],
+      "answer_index": 2,
+      "answer": "[25, 45]",
+      "explanation": "'At least' and 'at most' include both ends."
+    },
+    {
+      "id": 24,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-2",
+      "lesson_title": "Intervals and Their Operations",
+      "question": "Fresh milk is best kept at [1, 4] °C and fresh meat at [−2, 2] °C. The common temperature range is:",
+      "options": [
+        "[2, 4]",
+        "[−2, 1]",
+        "[−2, 4]",
+        "[1, 2]"
+      ],
+      "answer_index": 3,
+      "answer": "[1, 2]",
+      "explanation": "[1, 4] ∩ [−2, 2] = [1, 2]."
+    },
+    {
+      "id": 25,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-2",
+      "lesson_title": "Intervals and Their Operations",
+      "question": "If A = [−1, 3] and B = ]−∞, 3[, then A − B =",
+      "options": [
+        "{3}",
+        "]−∞, −1[",
+        "[−1, 3[",
+        "∅"
+      ],
+      "answer_index": 0,
+      "answer": "{3}",
+      "explanation": "3 is in A but not in B."
+    },
+    {
+      "id": 26,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-2",
+      "lesson_title": "Intervals and Their Operations",
+      "question": "If [−2, a] ∩ [b, 7] = [2, 4], then a + b =",
+      "options": [
+        "2",
+        "6",
+        "9",
+        "4"
+      ],
+      "answer_index": 1,
+      "answer": "6",
+      "explanation": "a = 4 and b = 2."
+    },
+    {
+      "id": 27,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-2",
+      "lesson_title": "Intervals and Their Operations",
+      "question": "]−∞, 6] − ]4, ∞[ =",
+      "options": [
+        "]4, 6]",
+        "]−∞, 4[",
+        "]−∞, 4]",
+        "[4, 6]"
+      ],
+      "answer_index": 2,
+      "answer": "]−∞, 4]",
+      "explanation": "Remove everything greater than 4 from ]−∞, 6]."
+    },
+    {
+      "id": 28,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-3",
+      "lesson_title": "Operations on Real Numbers",
+      "question": "Which term is a like radical to 3√2?",
+      "options": [
+        "5∛2",
+        "5√3",
+        "2√5",
+        "5√2"
+      ],
+      "answer_index": 3,
+      "answer": "5√2",
+      "explanation": "Like radicals have the same index and radicand."
+    },
+    {
+      "id": 29,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-3",
+      "lesson_title": "Operations on Real Numbers",
+      "question": "2√3 + 5√3 =",
+      "options": [
+        "7√3",
+        "10√3",
+        "7√6",
+        "7√9"
+      ],
+      "answer_index": 0,
+      "answer": "7√3",
+      "explanation": "Add the coefficients of like radicals."
+    },
+    {
+      "id": 30,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-3",
+      "lesson_title": "Operations on Real Numbers",
+      "question": "The simplest form of 7/√3 with an integer denominator is:",
+      "options": [
+        "7√3",
+        "7√3/3",
+        "√21",
+        "7/3"
+      ],
+      "answer_index": 1,
+      "answer": "7√3/3",
+      "explanation": "Multiply numerator and denominator by √3."
+    },
+    {
+      "id": 31,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-3",
+      "lesson_title": "Operations on Real Numbers",
+      "question": "(2 + √3)(2 − √3) =",
+      "options": [
+        "4 − √3",
+        "7",
+        "1",
+        "2"
+      ],
+      "answer_index": 2,
+      "answer": "1",
+      "explanation": "4 − 3 = 1."
+    },
+    {
+      "id": 32,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-3",
+      "lesson_title": "Operations on Real Numbers",
+      "question": "(√5 − 2)² =",
+      "options": [
+        "1",
+        "9 + 4√5",
+        "5 − 4",
+        "9 − 4√5"
+      ],
+      "answer_index": 3,
+      "answer": "9 − 4√5",
+      "explanation": "5 − 4√5 + 4 = 9 − 4√5."
+    },
+    {
+      "id": 33,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-3",
+      "lesson_title": "Operations on Real Numbers",
+      "question": "The multiplicative inverse of 2 − √3 is:",
+      "options": [
+        "2 + √3",
+        "1/2 − √3",
+        "√3 − 2",
+        "−2 − √3"
+      ],
+      "answer_index": 0,
+      "answer": "2 + √3",
+      "explanation": "1/(2−√3) × (2+√3)/(2+√3) = (2+√3)/1."
+    },
+    {
+      "id": 34,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-3",
+      "lesson_title": "Operations on Real Numbers",
+      "question": "The additive inverse of 3√2 is:",
+      "options": [
+        "−√2/3",
+        "−3√2",
+        "√2/3",
+        "3/√2"
+      ],
+      "answer_index": 1,
+      "answer": "−3√2",
+      "explanation": "The additive inverse of a is −a."
+    },
+    {
+      "id": 35,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-3",
+      "lesson_title": "Operations on Real Numbers",
+      "question": "The multiplicative inverse of √3 + √2 in its simplest form is:",
+      "options": [
+        "1/√3",
+        "√2 − √3",
+        "√3 − √2",
+        "√3 + √2"
+      ],
+      "answer_index": 2,
+      "answer": "√3 − √2",
+      "explanation": "Multiply by the conjugate: (√3−√2)/(3−2)."
+    },
+    {
+      "id": 36,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-3",
+      "lesson_title": "Operations on Real Numbers",
+      "question": "If x = −4√3 and y = √3, then x × y =",
+      "options": [
+        "12",
+        "−12√3",
+        "−3",
+        "−12"
+      ],
+      "answer_index": 3,
+      "answer": "−12",
+      "explanation": "−4 × (√3)² = −12."
+    },
+    {
+      "id": 37,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-3",
+      "lesson_title": "Operations on Real Numbers",
+      "question": "If x = −4√3 and y = √3, then x + y =",
+      "options": [
+        "−3√3",
+        "−5√3",
+        "−4√3",
+        "−12"
+      ],
+      "answer_index": 0,
+      "answer": "−3√3",
+      "explanation": "(−4 + 1)√3 = −3√3."
+    },
+    {
+      "id": 38,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-3",
+      "lesson_title": "Operations on Real Numbers",
+      "question": "6/√2 in its simplest form is:",
+      "options": [
+        "6√2",
+        "3√2",
+        "3",
+        "√12"
+      ],
+      "answer_index": 1,
+      "answer": "3√2",
+      "explanation": "6√2/2 = 3√2."
+    },
+    {
+      "id": 39,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-3",
+      "lesson_title": "Operations on Real Numbers",
+      "question": "(√7 − 1)(√7 + 3) =",
+      "options": [
+        "6",
+        "2√7 − 3",
+        "4 + 2√7",
+        "10 + 2√7"
+      ],
+      "answer_index": 2,
+      "answer": "4 + 2√7",
+      "explanation": "7 + 3√7 − √7 − 3 = 4 + 2√7."
+    },
+    {
+      "id": 40,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-3",
+      "lesson_title": "Operations on Real Numbers",
+      "question": "(√5 + √2)(√5 − √2) =",
+      "options": [
+        "7",
+        "√3",
+        "5 − 2√10",
+        "3"
+      ],
+      "answer_index": 3,
+      "answer": "3",
+      "explanation": "5 − 2 = 3."
+    },
+    {
+      "id": 41,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-3",
+      "lesson_title": "Operations on Real Numbers",
+      "question": "If a × √2 = 1, then a =",
+      "options": [
+        "√2/2",
+        "√2",
+        "1/2",
+        "2"
+      ],
+      "answer_index": 0,
+      "answer": "√2/2",
+      "explanation": "a = 1/√2 = √2/2."
+    },
+    {
+      "id": 42,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-4",
+      "lesson_title": "Laws of Square and Cube Roots",
+      "question": "√32 =",
+      "options": [
+        "16√2",
+        "4√2",
+        "8√2",
+        "2√4"
+      ],
+      "answer_index": 1,
+      "answer": "4√2",
+      "explanation": "√(16×2) = 4√2."
+    },
+    {
+      "id": 43,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-4",
+      "lesson_title": "Laws of Square and Cube Roots",
+      "question": "√18 ÷ √2 =",
+      "options": [
+        "√16",
+        "9",
+        "3",
+        "6"
+      ],
+      "answer_index": 2,
+      "answer": "3",
+      "explanation": "√(18/2) = √9 = 3."
+    },
+    {
+      "id": 44,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-4",
+      "lesson_title": "Laws of Square and Cube Roots",
+      "question": "∛24 =",
+      "options": [
+        "8∛3",
+        "2∛6",
+        "3∛2",
+        "2∛3"
+      ],
+      "answer_index": 3,
+      "answer": "2∛3",
+      "explanation": "∛(8×3) = 2∛3."
+    },
+    {
+      "id": 45,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-4",
+      "lesson_title": "Laws of Square and Cube Roots",
+      "question": "√2 × √8 =",
+      "options": [
+        "4",
+        "√10",
+        "8",
+        "16"
+      ],
+      "answer_index": 0,
+      "answer": "4",
+      "explanation": "√16 = 4."
+    },
+    {
+      "id": 46,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-4",
+      "lesson_title": "Laws of Square and Cube Roots",
+      "question": "10/√5 =",
+      "options": [
+        "5√2",
+        "2√5",
+        "10√5",
+        "√2"
+      ],
+      "answer_index": 1,
+      "answer": "2√5",
+      "explanation": "10√5/5 = 2√5."
+    },
+    {
+      "id": 47,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-4",
+      "lesson_title": "Laws of Square and Cube Roots",
+      "question": "2√3 + √27 =",
+      "options": [
+        "6√3",
+        "7√3",
+        "5√3",
+        "5√6"
+      ],
+      "answer_index": 2,
+      "answer": "5√3",
+      "explanation": "√27 = 3√3, so 2√3 + 3√3 = 5√3."
+    },
+    {
+      "id": 48,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-4",
+      "lesson_title": "Laws of Square and Cube Roots",
+      "question": "√50 − √18 =",
+      "options": [
+        "√32",
+        "8√2",
+        "4√2",
+        "2√2"
+      ],
+      "answer_index": 3,
+      "answer": "2√2",
+      "explanation": "5√2 − 3√2 = 2√2."
+    },
+    {
+      "id": 49,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-4",
+      "lesson_title": "Laws of Square and Cube Roots",
+      "question": "∛(−27) =",
+      "options": [
+        "−3",
+        "3",
+        "Not defined in ℝ",
+        "−9"
+      ],
+      "answer_index": 0,
+      "answer": "−3",
+      "explanation": "(−3)³ = −27; cube roots of negatives are real."
+    },
+    {
+      "id": 50,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-4",
+      "lesson_title": "Laws of Square and Cube Roots",
+      "question": "√12 ÷ √3 =",
+      "options": [
+        "6",
+        "2",
+        "4",
+        "3"
+      ],
+      "answer_index": 1,
+      "answer": "2",
+      "explanation": "√(12/3) = √4 = 2."
+    },
+    {
+      "id": 51,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-4",
+      "lesson_title": "Laws of Square and Cube Roots",
+      "question": "∛2 × ∛4 =",
+      "options": [
+        "4",
+        "∛6",
+        "2",
+        "8"
+      ],
+      "answer_index": 2,
+      "answer": "2",
+      "explanation": "∛8 = 2."
+    },
+    {
+      "id": 52,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-4",
+      "lesson_title": "Laws of Square and Cube Roots",
+      "question": "If √160 = x√10, then x =",
+      "options": [
+        "2",
+        "16",
+        "8",
+        "4"
+      ],
+      "answer_index": 3,
+      "answer": "4",
+      "explanation": "√160 = √(16×10) = 4√10."
+    },
+    {
+      "id": 53,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-4",
+      "lesson_title": "Laws of Square and Cube Roots",
+      "question": "The perimeter of a square whose area is 48 m² is:",
+      "options": [
+        "16√3 m",
+        "12√4 m",
+        "8√3 m",
+        "24√3 m"
+      ],
+      "answer_index": 0,
+      "answer": "16√3 m",
+      "explanation": "Side = √48 = 4√3, perimeter = 4 × 4√3 = 16√3."
+    },
+    {
+      "id": 54,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-5",
+      "lesson_title": "Laws of Exponents in Real Numbers",
+      "question": "(√5)⁴ =",
+      "options": [
+        "20",
+        "25",
+        "10",
+        "5"
+      ],
+      "answer_index": 1,
+      "answer": "25",
+      "explanation": "(√5)² = 5, so (√5)⁴ = 25."
+    },
+    {
+      "id": 55,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-5",
+      "lesson_title": "Laws of Exponents in Real Numbers",
+      "question": "(−√5)³ =",
+      "options": [
+        "5√5",
+        "−15",
+        "−5√5",
+        "−25"
+      ],
+      "answer_index": 2,
+      "answer": "−5√5",
+      "explanation": "−√5 × −√5 × −√5 = −5√5."
+    },
+    {
+      "id": 56,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-5",
+      "lesson_title": "Laws of Exponents in Real Numbers",
+      "question": "(√3)⁰ + 5⁰ =",
+      "options": [
+        "8",
+        "1",
+        "0",
+        "2"
+      ],
+      "answer_index": 3,
+      "answer": "2",
+      "explanation": "Any non-zero number to the power 0 is 1."
+    },
+    {
+      "id": 57,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-5",
+      "lesson_title": "Laws of Exponents in Real Numbers",
+      "question": "2⁻³ =",
+      "options": [
+        "1/8",
+        "−8",
+        "1/6",
+        "−6"
+      ],
+      "answer_index": 0,
+      "answer": "1/8",
+      "explanation": "a⁻ⁿ = 1/aⁿ."
+    },
+    {
+      "id": 58,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-5",
+      "lesson_title": "Laws of Exponents in Real Numbers",
+      "question": "2⁵ × 2³ =",
+      "options": [
+        "4⁸",
+        "2⁸",
+        "4¹⁵",
+        "2¹⁵"
+      ],
+      "answer_index": 1,
+      "answer": "2⁸",
+      "explanation": "Keep the base, add the exponents."
+    },
+    {
+      "id": 59,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-5",
+      "lesson_title": "Laws of Exponents in Real Numbers",
+      "question": "3⁷ ÷ 3⁴ =",
+      "options": [
+        "3",
+        "9",
+        "27",
+        "81"
+      ],
+      "answer_index": 2,
+      "answer": "27",
+      "explanation": "3⁷⁻⁴ = 3³ = 27."
+    },
+    {
+      "id": 60,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-5",
+      "lesson_title": "Laws of Exponents in Real Numbers",
+      "question": "(2/3)⁻² =",
+      "options": [
+        "−9/4",
+        "−4/9",
+        "4/9",
+        "9/4"
+      ],
+      "answer_index": 3,
+      "answer": "9/4",
+      "explanation": "Take the reciprocal and square: (3/2)² = 9/4."
+    },
+    {
+      "id": 61,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-5",
+      "lesson_title": "Laws of Exponents in Real Numbers",
+      "question": "If 2^(x+1) = 1, then x =",
+      "options": [
+        "−1",
+        "1",
+        "2",
+        "0"
+      ],
+      "answer_index": 0,
+      "answer": "−1",
+      "explanation": "2^(x+1) = 2⁰, so x + 1 = 0."
+    },
+    {
+      "id": 62,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-5",
+      "lesson_title": "Laws of Exponents in Real Numbers",
+      "question": "If 2ˣ = 5, then 2^(x+1) =",
+      "options": [
+        "25",
+        "10",
+        "7",
+        "6"
+      ],
+      "answer_index": 1,
+      "answer": "10",
+      "explanation": "2^(x+1) = 2ˣ × 2 = 10."
+    },
+    {
+      "id": 63,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-5",
+      "lesson_title": "Laws of Exponents in Real Numbers",
+      "question": "If 3ˣ = 4, then 3^(x+2) =",
+      "options": [
+        "6",
+        "16",
+        "36",
+        "12"
+      ],
+      "answer_index": 2,
+      "answer": "36",
+      "explanation": "3ˣ × 3² = 4 × 9 = 36."
+    },
+    {
+      "id": 64,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-5",
+      "lesson_title": "Laws of Exponents in Real Numbers",
+      "question": "10⁻² =",
+      "options": [
+        "−100",
+        "0.1",
+        "−0.01",
+        "0.01"
+      ],
+      "answer_index": 3,
+      "answer": "0.01",
+      "explanation": "10⁻² = 1/100."
+    },
+    {
+      "id": 65,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-5",
+      "lesson_title": "Laws of Exponents in Real Numbers",
+      "question": "(2x²)³ =",
+      "options": [
+        "8x⁶",
+        "8x⁵",
+        "2x⁶",
+        "6x⁵"
+      ],
+      "answer_index": 0,
+      "answer": "8x⁶",
+      "explanation": "Raise each factor to the power 3."
+    },
+    {
+      "id": 66,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-5",
+      "lesson_title": "Laws of Exponents in Real Numbers",
+      "question": "5⁻¹ × 5³ =",
+      "options": [
+        "5⁻³",
+        "25",
+        "125",
+        "1/25"
+      ],
+      "answer_index": 1,
+      "answer": "25",
+      "explanation": "5⁻¹⁺³ = 5² = 25."
+    },
+    {
+      "id": 67,
+      "unit": 1,
+      "unit_title": "Numbers and Their Operations",
+      "lesson": "1-5",
+      "lesson_title": "Laws of Exponents in Real Numbers",
+      "question": "The area of Sinai is about 6% of 10⁶ km². Its approximate area is:",
+      "options": [
+        "6 × 10⁵ km²",
+        "6 × 10⁶ km²",
+        "6 × 10⁴ km²",
+        "6 × 10³ km²"
+      ],
+      "answer_index": 2,
+      "answer": "6 × 10⁴ km²",
+      "explanation": "6/100 × 10⁶ = 6 × 10⁴."
+    },
+    {
+      "id": 68,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-1",
+      "lesson_title": "Factorizing by Taking Out the Greatest Common Factor (GCF)",
+      "question": "The greatest common factor of the terms of 12x³ − 8x² is:",
+      "options": [
+        "2x",
+        "4x",
+        "8x³",
+        "4x²"
+      ],
+      "answer_index": 3,
+      "answer": "4x²",
+      "explanation": "GCF of 12 and 8 is 4; smallest power of x is x²."
+    },
+    {
+      "id": 69,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-1",
+      "lesson_title": "Factorizing by Taking Out the Greatest Common Factor (GCF)",
+      "question": "6x² − 15x, factorized by taking out the greatest common factor, equals:",
+      "options": [
+        "3x(2x − 5)",
+        "6x(x − 15)",
+        "x(6x − 15)",
+        "3(2x² − 5x)"
+      ],
+      "answer_index": 0,
+      "answer": "3x(2x − 5)",
+      "explanation": "The GCF is 3x."
+    },
+    {
+      "id": 70,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-1",
+      "lesson_title": "Factorizing by Taking Out the Greatest Common Factor (GCF)",
+      "question": "15x²y − 30xy², factorized by taking out the greatest common factor, equals:",
+      "options": [
+        "15(x²y − 2xy²)",
+        "15xy(x − 2y)",
+        "15xy(x − 2)",
+        "5xy(3x − 6y)"
+      ],
+      "answer_index": 1,
+      "answer": "15xy(x − 2y)",
+      "explanation": "GCF is 15xy."
+    },
+    {
+      "id": 71,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-1",
+      "lesson_title": "Factorizing by Taking Out the Greatest Common Factor (GCF)",
+      "question": "x(a + b) + y(a + b) =",
+      "options": [
+        "xy(a + b)",
+        "(x + y)(a − b)",
+        "(x + y)(a + b)",
+        "(x − y)(a + b)"
+      ],
+      "answer_index": 2,
+      "answer": "(x + y)(a + b)",
+      "explanation": "(a + b) is a common binomial factor."
+    },
+    {
+      "id": 72,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-1",
+      "lesson_title": "Factorizing by Taking Out the Greatest Common Factor (GCF)",
+      "question": "(x − 5)² − 2(x − 5) =",
+      "options": [
+        "(x − 5)²",
+        "(x − 5)(x − 3)",
+        "(x − 7)(x + 5)",
+        "(x − 5)(x − 7)"
+      ],
+      "answer_index": 3,
+      "answer": "(x − 5)(x − 7)",
+      "explanation": "Take (x−5) out: (x−5)[(x−5) − 2]."
+    },
+    {
+      "id": 73,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-1",
+      "lesson_title": "Factorizing by Taking Out the Greatest Common Factor (GCF)",
+      "question": "The solution set of x² − 3x = 0 in ℝ is:",
+      "options": [
+        "{0, 3}",
+        "{−3, 3}",
+        "{3}",
+        "{0, −3}"
+      ],
+      "answer_index": 0,
+      "answer": "{0, 3}",
+      "explanation": "x(x − 3) = 0."
+    },
+    {
+      "id": 74,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-1",
+      "lesson_title": "Factorizing by Taking Out the Greatest Common Factor (GCF)",
+      "question": "The solution set of 4x² = 8x in ℝ is:",
+      "options": [
+        "{2}",
+        "{0, 2}",
+        "{0, −2}",
+        "{0, 8}"
+      ],
+      "answer_index": 1,
+      "answer": "{0, 2}",
+      "explanation": "4x(x − 2) = 0. Dividing by x would lose the solution x = 0."
+    },
+    {
+      "id": 75,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-1",
+      "lesson_title": "Factorizing by Taking Out the Greatest Common Factor (GCF)",
+      "question": "The solution set of 3x² + 6x = 0 in ℝ is:",
+      "options": [
+        "{0, 3}",
+        "{−2}",
+        "{0, −2}",
+        "{0, 2}"
+      ],
+      "answer_index": 2,
+      "answer": "{0, −2}",
+      "explanation": "3x(x + 2) = 0."
+    },
+    {
+      "id": 76,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-1",
+      "lesson_title": "Factorizing by Taking Out the Greatest Common Factor (GCF)",
+      "question": "Using factorization, 19 × 23 + 19 × 27 =",
+      "options": [
+        "513",
+        "437",
+        "1900",
+        "950"
+      ],
+      "answer_index": 3,
+      "answer": "950",
+      "explanation": "19(23 + 27) = 19 × 50 = 950."
+    },
+    {
+      "id": 77,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-1",
+      "lesson_title": "Factorizing by Taking Out the Greatest Common Factor (GCF)",
+      "question": "−a + b − c =",
+      "options": [
+        "−(a − b + c)",
+        "(a − b + c)",
+        "−(a − b − c)",
+        "−(a + b + c)"
+      ],
+      "answer_index": 0,
+      "answer": "−(a − b + c)",
+      "explanation": "Take −1 as a common factor."
+    },
+    {
+      "id": 78,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-1",
+      "lesson_title": "Factorizing by Taking Out the Greatest Common Factor (GCF)",
+      "question": "If x + y = 10 and a − b = 7, then x(a − b) − y(b − a) =",
+      "options": [
+        "17",
+        "70",
+        "3",
+        "−70"
+      ],
+      "answer_index": 1,
+      "answer": "70",
+      "explanation": "= (a − b)(x + y) = 7 × 10 = 70."
+    },
+    {
+      "id": 79,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-1",
+      "lesson_title": "Factorizing by Taking Out the Greatest Common Factor (GCF)",
+      "question": "A polynomial that cannot be factorized further is called:",
+      "options": [
+        "a quadratic equation",
+        "a perfect square",
+        "a prime polynomial",
+        "a monomial"
+      ],
+      "answer_index": 2,
+      "answer": "a prime polynomial",
+      "explanation": "This is the definition of a prime polynomial."
+    },
+    {
+      "id": 80,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-2",
+      "lesson_title": "Factorizing Trinomials",
+      "question": "x² + 5x + 6 =",
+      "options": [
+        "(x − 2)(x − 3)",
+        "(x + 1)(x + 6)",
+        "(x + 5)(x + 1)",
+        "(x + 2)(x + 3)"
+      ],
+      "answer_index": 3,
+      "answer": "(x + 2)(x + 3)",
+      "explanation": "2 × 3 = 6 and 2 + 3 = 5."
+    },
+    {
+      "id": 81,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-2",
+      "lesson_title": "Factorizing Trinomials",
+      "question": "x² − 6x + 8 =",
+      "options": [
+        "(x − 2)(x − 4)",
+        "(x − 2)(x + 4)",
+        "(x + 2)(x + 4)",
+        "(x − 1)(x − 8)"
+      ],
+      "answer_index": 0,
+      "answer": "(x − 2)(x − 4)",
+      "explanation": "(−2)(−4) = 8 and −2 + −4 = −6."
+    },
+    {
+      "id": 82,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-2",
+      "lesson_title": "Factorizing Trinomials",
+      "question": "x² + x − 12 =",
+      "options": [
+        "(x + 12)(x − 1)",
+        "(x + 4)(x − 3)",
+        "(x + 6)(x − 2)",
+        "(x − 4)(x + 3)"
+      ],
+      "answer_index": 1,
+      "answer": "(x + 4)(x − 3)",
+      "explanation": "4 × (−3) = −12 and 4 + (−3) = 1."
+    },
+    {
+      "id": 83,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-2",
+      "lesson_title": "Factorizing Trinomials",
+      "question": "x² − 7x − 18 =",
+      "options": [
+        "(x − 6)(x + 3)",
+        "(x − 18)(x + 1)",
+        "(x − 9)(x + 2)",
+        "(x + 9)(x − 2)"
+      ],
+      "answer_index": 2,
+      "answer": "(x − 9)(x + 2)",
+      "explanation": "−9 × 2 = −18 and −9 + 2 = −7."
+    },
+    {
+      "id": 84,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-2",
+      "lesson_title": "Factorizing Trinomials",
+      "question": "2x² + 7x + 6 =",
+      "options": [
+        "(2x + 2)(x + 3)",
+        "(2x − 3)(x − 2)",
+        "(2x + 1)(x + 6)",
+        "(2x + 3)(x + 2)"
+      ],
+      "answer_index": 3,
+      "answer": "(2x + 3)(x + 2)",
+      "explanation": "Cross terms: 4x + 3x = 7x."
+    },
+    {
+      "id": 85,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-2",
+      "lesson_title": "Factorizing Trinomials",
+      "question": "6x² − 13x + 6 =",
+      "options": [
+        "(2x − 3)(3x − 2)",
+        "(6x − 3)(x − 2)",
+        "(2x + 3)(3x + 2)",
+        "(2x − 2)(3x − 3)"
+      ],
+      "answer_index": 0,
+      "answer": "(2x − 3)(3x − 2)",
+      "explanation": "Cross terms: −4x − 9x = −13x."
+    },
+    {
+      "id": 86,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-2",
+      "lesson_title": "Factorizing Trinomials",
+      "question": "The solution set of x² + 5x − 36 = 0 in ℝ is:",
+      "options": [
+        "{−4, 9}",
+        "{4, −9}",
+        "{4, 9}",
+        "{−4, −9}"
+      ],
+      "answer_index": 1,
+      "answer": "{4, −9}",
+      "explanation": "(x − 4)(x + 9) = 0."
+    },
+    {
+      "id": 87,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-2",
+      "lesson_title": "Factorizing Trinomials",
+      "question": "The solution set of x² − 3x = 10 in ℝ is:",
+      "options": [
+        "{−5, 2}",
+        "{−5, −2}",
+        "{5, −2}",
+        "{5, 2}"
+      ],
+      "answer_index": 2,
+      "answer": "{5, −2}",
+      "explanation": "x² − 3x − 10 = (x − 5)(x + 2) = 0."
+    },
+    {
+      "id": 88,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-2",
+      "lesson_title": "Factorizing Trinomials",
+      "question": "If x² + ax + 15 = (x + 3)(x + b), then a × b =",
+      "options": [
+        "8",
+        "13",
+        "15",
+        "40"
+      ],
+      "answer_index": 3,
+      "answer": "40",
+      "explanation": "b = 5 and a = 8, so a × b = 40."
+    },
+    {
+      "id": 89,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-2",
+      "lesson_title": "Factorizing Trinomials",
+      "question": "3x² + 6x − 72 =",
+      "options": [
+        "3(x + 6)(x − 4)",
+        "3(x + 8)(x − 3)",
+        "(3x + 6)(x − 12)",
+        "3(x − 6)(x + 4)"
+      ],
+      "answer_index": 0,
+      "answer": "3(x + 6)(x − 4)",
+      "explanation": "Take 3 out first: x² + 2x − 24 = (x + 6)(x − 4)."
+    },
+    {
+      "id": 90,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-2",
+      "lesson_title": "Factorizing Trinomials",
+      "question": "A rectangular pool has area 40 m² and perimeter 26 m. Its dimensions are:",
+      "options": [
+        "2 m and 20 m",
+        "5 m and 8 m",
+        "4 m and 10 m",
+        "6 m and 7 m"
+      ],
+      "answer_index": 1,
+      "answer": "5 m and 8 m",
+      "explanation": "Length + width = 13 and product = 40, so 5 and 8."
+    },
+    {
+      "id": 91,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-2",
+      "lesson_title": "Factorizing Trinomials",
+      "question": "If (x − 5) is one factor of 2x² − 7x − 15, the other factor is:",
+      "options": [
+        "x + 3",
+        "x − 3",
+        "2x + 3",
+        "2x − 3"
+      ],
+      "answer_index": 2,
+      "answer": "2x + 3",
+      "explanation": "(x − 5)(2x + 3) = 2x² − 7x − 15."
+    },
+    {
+      "id": 92,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-2",
+      "lesson_title": "Factorizing Trinomials",
+      "question": "If (x − 3)(x + 5) = 0, then:",
+      "options": [
+        "x = 3 or x = 5",
+        "x = −3 or x = −5",
+        "x = −3 or x = 5",
+        "x = 3 or x = −5"
+      ],
+      "answer_index": 3,
+      "answer": "x = 3 or x = −5",
+      "explanation": "Each factor is set equal to zero."
+    },
+    {
+      "id": 93,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-2",
+      "lesson_title": "Factorizing Trinomials",
+      "question": "The trinomial 2x² − 12x + 10 completely factorized is:",
+      "options": [
+        "2(x − 1)(x − 5)",
+        "2(x − 2)(x − 3)",
+        "(x − 1)(2x − 5)",
+        "2(x + 1)(x + 5)"
+      ],
+      "answer_index": 0,
+      "answer": "2(x − 1)(x − 5)",
+      "explanation": "2(x² − 6x + 5) = 2(x − 1)(x − 5)."
+    },
+    {
+      "id": 94,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-3",
+      "lesson_title": "Factorizing Special Cases",
+      "question": "4x² + 20x + 25 =",
+      "options": [
+        "(4x + 5)²",
+        "(2x + 5)²",
+        "(2x − 5)²",
+        "(2x + 25)²"
+      ],
+      "answer_index": 1,
+      "answer": "(2x + 5)²",
+      "explanation": "Perfect square: 2 × 2x × 5 = 20x."
+    },
+    {
+      "id": 95,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-3",
+      "lesson_title": "Factorizing Special Cases",
+      "question": "The value of a that makes x² + 14x + a a perfect square trinomial is:",
+      "options": [
+        "14",
+        "7",
+        "49",
+        "196"
+      ],
+      "answer_index": 2,
+      "answer": "49",
+      "explanation": "a = (14/2)² = 49."
+    },
+    {
+      "id": 96,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-3",
+      "lesson_title": "Factorizing Special Cases",
+      "question": "x² − 9 =",
+      "options": [
+        "(x + 3)²",
+        "(x − 9)(x + 1)",
+        "(x − 3)²",
+        "(x − 3)(x + 3)"
+      ],
+      "answer_index": 3,
+      "answer": "(x − 3)(x + 3)",
+      "explanation": "Difference of two squares."
+    },
+    {
+      "id": 97,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-3",
+      "lesson_title": "Factorizing Special Cases",
+      "question": "9x² − 16y² =",
+      "options": [
+        "(3x − 4y)(3x + 4y)",
+        "(9x − 16y)(x + y)",
+        "(3x − 4y)²",
+        "(3x + 4y)²"
+      ],
+      "answer_index": 0,
+      "answer": "(3x − 4y)(3x + 4y)",
+      "explanation": "(3x)² − (4y)²."
+    },
+    {
+      "id": 98,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-3",
+      "lesson_title": "Factorizing Special Cases",
+      "question": "x³ − 27 =",
+      "options": [
+        "(x − 3)³",
+        "(x − 3)(x² + 3x + 9)",
+        "(x + 3)(x² − 3x + 9)",
+        "(x − 3)(x² − 3x + 9)"
+      ],
+      "answer_index": 1,
+      "answer": "(x − 3)(x² + 3x + 9)",
+      "explanation": "Difference of two cubes: a³ − b³ = (a − b)(a² + ab + b²)."
+    },
+    {
+      "id": 99,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-3",
+      "lesson_title": "Factorizing Special Cases",
+      "question": "x³ + 8 =",
+      "options": [
+        "(x − 2)(x² + 2x + 4)",
+        "(x + 2)(x² + 2x + 4)",
+        "(x + 2)(x² − 2x + 4)",
+        "(x + 2)³"
+      ],
+      "answer_index": 2,
+      "answer": "(x + 2)(x² − 2x + 4)",
+      "explanation": "Sum of two cubes: a³ + b³ = (a + b)(a² − ab + b²)."
+    },
+    {
+      "id": 100,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-3",
+      "lesson_title": "Factorizing Special Cases",
+      "question": "If 4x² + kx + 1 is a perfect square trinomial, then k =",
+      "options": [
+        "±1",
+        "4",
+        "±2",
+        "±4"
+      ],
+      "answer_index": 3,
+      "answer": "±4",
+      "explanation": "k = ±2 × 2x × 1 → ±4."
+    },
+    {
+      "id": 101,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-3",
+      "lesson_title": "Factorizing Special Cases",
+      "question": "The value of 99² − 1 is:",
+      "options": [
+        "9800",
+        "9900",
+        "9998",
+        "9801"
+      ],
+      "answer_index": 0,
+      "answer": "9800",
+      "explanation": "(99 − 1)(99 + 1) = 98 × 100."
+    },
+    {
+      "id": 102,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-3",
+      "lesson_title": "Factorizing Special Cases",
+      "question": "The value of 57² + 2(57)(43) + 43² is:",
+      "options": [
+        "1000",
+        "10000",
+        "100",
+        "5700"
+      ],
+      "answer_index": 1,
+      "answer": "10000",
+      "explanation": "(57 + 43)² = 100²."
+    },
+    {
+      "id": 103,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-3",
+      "lesson_title": "Factorizing Special Cases",
+      "question": "Which of the following expressions cannot be factorized in ℝ?",
+      "options": [
+        "x³ + 27",
+        "x² + 6x + 9",
+        "x² + 9",
+        "x² − 9"
+      ],
+      "answer_index": 2,
+      "answer": "x² + 9",
+      "explanation": "The sum of two squares has no real factors."
+    },
+    {
+      "id": 104,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-3",
+      "lesson_title": "Factorizing Special Cases",
+      "question": "2x² − 18 =",
+      "options": [
+        "(2x − 3)(x + 3)",
+        "2(x − 3)²",
+        "2(x − 9)",
+        "2(x − 3)(x + 3)"
+      ],
+      "answer_index": 3,
+      "answer": "2(x − 3)(x + 3)",
+      "explanation": "Take 2 out, then the difference of two squares."
+    },
+    {
+      "id": 105,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-3",
+      "lesson_title": "Factorizing Special Cases",
+      "question": "16x⁴ − y⁴ =",
+      "options": [
+        "(4x² + y²)(2x + y)(2x − y)",
+        "(4x² − y²)²",
+        "(4x² + y²)(4x² + y²)",
+        "(2x − y)⁴"
+      ],
+      "answer_index": 0,
+      "answer": "(4x² + y²)(2x + y)(2x − y)",
+      "explanation": "Apply the difference of two squares twice."
+    },
+    {
+      "id": 106,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-3",
+      "lesson_title": "Factorizing Special Cases",
+      "question": "If x − y = −2 and x² − y² = −16, then x + y =",
+      "options": [
+        "32",
+        "8",
+        "14",
+        "−8"
+      ],
+      "answer_index": 1,
+      "answer": "8",
+      "explanation": "(x − y)(x + y) = −16, so x + y = −16 ÷ −2 = 8."
+    },
+    {
+      "id": 107,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-3",
+      "lesson_title": "Factorizing Special Cases",
+      "question": "The solution set of x² = 25 in ℝ is:",
+      "options": [
+        "{25}",
+        "{5}",
+        "{5, −5}",
+        "{−5}"
+      ],
+      "answer_index": 2,
+      "answer": "{5, −5}",
+      "explanation": "x² − 25 = (x − 5)(x + 5) = 0."
+    },
+    {
+      "id": 108,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-3",
+      "lesson_title": "Factorizing Special Cases",
+      "question": "x⁴ − 81 completely factorized =",
+      "options": [
+        "(x² + 9)²",
+        "(x² − 9)²",
+        "(x − 3)⁴",
+        "(x² + 9)(x − 3)(x + 3)"
+      ],
+      "answer_index": 3,
+      "answer": "(x² + 9)(x − 3)(x + 3)",
+      "explanation": "x⁴ − 81 = (x² − 9)(x² + 9) and x² − 9 is also factorizable."
+    },
+    {
+      "id": 109,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-3",
+      "lesson_title": "Factorizing Special Cases",
+      "question": "64x³ − 125y³ =",
+      "options": [
+        "(4x − 5y)(16x² + 20xy + 25y²)",
+        "(4x − 5y)(16x² − 20xy + 25y²)",
+        "(4x + 5y)(16x² − 20xy + 25y²)",
+        "(4x − 5y)³"
+      ],
+      "answer_index": 0,
+      "answer": "(4x − 5y)(16x² + 20xy + 25y²)",
+      "explanation": "Difference of two cubes with a = 4x, b = 5y."
+    },
+    {
+      "id": 110,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-4",
+      "lesson_title": "Factorizing by Grouping",
+      "question": "ax + ay + bx + by =",
+      "options": [
+        "(x + y)(a − b)",
+        "(x + y)(a + b)",
+        "ab(x + y)",
+        "(a + b)(x − y)"
+      ],
+      "answer_index": 1,
+      "answer": "(x + y)(a + b)",
+      "explanation": "Group: a(x + y) + b(x + y)."
+    },
+    {
+      "id": 111,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-4",
+      "lesson_title": "Factorizing by Grouping",
+      "question": "3x³ + 2x² − 3x − 2 =",
+      "options": [
+        "(3x − 2)(x − 1)(x + 1)",
+        "(3x + 2)(x² + 1)",
+        "(3x + 2)(x − 1)(x + 1)",
+        "(3x + 2)(x − 1)²"
+      ],
+      "answer_index": 2,
+      "answer": "(3x + 2)(x − 1)(x + 1)",
+      "explanation": "= x²(3x + 2) − (3x + 2) = (3x + 2)(x² − 1)."
+    },
+    {
+      "id": 112,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-4",
+      "lesson_title": "Factorizing by Grouping",
+      "question": "x² − 5x − y² + 5y =",
+      "options": [
+        "(x − y)(x − y − 5)",
+        "(x + y)(x − y − 5)",
+        "(x − y)(x + y + 5)",
+        "(x − y)(x + y − 5)"
+      ],
+      "answer_index": 3,
+      "answer": "(x − y)(x + y − 5)",
+      "explanation": "(x² − y²) − 5(x − y)."
+    },
+    {
+      "id": 113,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-4",
+      "lesson_title": "Factorizing by Grouping",
+      "question": "x² + 16y² − 8xy − 49 =",
+      "options": [
+        "(x − 4y − 7)(x − 4y + 7)",
+        "(x − 4y − 7)²",
+        "(x + 4y − 7)(x + 4y + 7)",
+        "(x − 4y)(x − 4y − 49)"
+      ],
+      "answer_index": 0,
+      "answer": "(x − 4y − 7)(x − 4y + 7)",
+      "explanation": "(x − 4y)² − 7²."
+    },
+    {
+      "id": 114,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-4",
+      "lesson_title": "Factorizing by Grouping",
+      "question": "3x² + 8x + 4 =",
+      "options": [
+        "(3x − 2)(x − 2)",
+        "(3x + 2)(x + 2)",
+        "(3x + 4)(x + 1)",
+        "(3x + 1)(x + 4)"
+      ],
+      "answer_index": 1,
+      "answer": "(3x + 2)(x + 2)",
+      "explanation": "Two numbers with product 12 and sum 8: 6 and 2."
+    },
+    {
+      "id": 115,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-4",
+      "lesson_title": "Factorizing by Grouping",
+      "question": "6x² + 17x + 5 =",
+      "options": [
+        "(6x + 5)(x + 1)",
+        "(2x + 1)(3x + 5)",
+        "(2x + 5)(3x + 1)",
+        "(6x + 1)(x + 5)"
+      ],
+      "answer_index": 2,
+      "answer": "(2x + 5)(3x + 1)",
+      "explanation": "Product ac = 30 and sum 17: 15 and 2."
+    },
+    {
+      "id": 116,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-4",
+      "lesson_title": "Factorizing by Grouping",
+      "question": "To complete the square for x² + 12x, we add:",
+      "options": [
+        "6",
+        "144",
+        "12",
+        "36"
+      ],
+      "answer_index": 3,
+      "answer": "36",
+      "explanation": "(12/2)² = 36."
+    },
+    {
+      "id": 117,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-4",
+      "lesson_title": "Factorizing by Grouping",
+      "question": "To complete the square for x² − 6x, we add:",
+      "options": [
+        "9",
+        "−9",
+        "36",
+        "6"
+      ],
+      "answer_index": 0,
+      "answer": "9",
+      "explanation": "(−6/2)² = 9."
+    },
+    {
+      "id": 118,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-4",
+      "lesson_title": "Factorizing by Grouping",
+      "question": "The number that must be added to 4x² + 12x to make a perfect square trinomial is:",
+      "options": [
+        "12",
+        "9",
+        "36",
+        "3"
+      ],
+      "answer_index": 1,
+      "answer": "9",
+      "explanation": "Middle term = 2 × 2x × 3, so the third term is 3² = 9."
+    },
+    {
+      "id": 119,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-4",
+      "lesson_title": "Factorizing by Grouping",
+      "question": "4m² − n² + 10nk − 25k² =",
+      "options": [
+        "(2m − n − 5k)(2m + n + 5k)",
+        "(2m − n + 5k)²",
+        "(2m − n + 5k)(2m + n − 5k)",
+        "(4m − n)(m + 5k)"
+      ],
+      "answer_index": 2,
+      "answer": "(2m − n + 5k)(2m + n − 5k)",
+      "explanation": "= (2m)² − (n − 5k)²."
+    },
+    {
+      "id": 120,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-4",
+      "lesson_title": "Factorizing by Grouping",
+      "question": "If a + b = 2√5 and c − d = √5, then ac − ad + bc − bd =",
+      "options": [
+        "√5",
+        "5",
+        "2√5",
+        "10"
+      ],
+      "answer_index": 3,
+      "answer": "10",
+      "explanation": "= (a + b)(c − d) = 2√5 × √5 = 10."
+    },
+    {
+      "id": 121,
+      "unit": 2,
+      "unit_title": "Algebra",
+      "lesson": "2-4",
+      "lesson_title": "Factorizing by Grouping",
+      "question": "Factorizing four terms by grouping is mainly done by:",
+      "options": [
+        "grouping terms into pairs with a common factor",
+        "squaring each term",
+        "dividing by the first term",
+        "adding all terms"
+      ],
+      "answer_index": 0,
+      "answer": "grouping terms into pairs with a common factor",
+      "explanation": "Group terms so each group has a common factor, then take out the common binomial."
+    },
+    {
+      "id": 122,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-1",
+      "lesson_title": "Congruence",
+      "question": "Which of the following is NOT a case of triangle congruence?",
+      "options": [
+        "ASA",
+        "AAA",
+        "SAS",
+        "SSS"
+      ],
+      "answer_index": 1,
+      "answer": "AAA",
+      "explanation": "Three equal angles only guarantee similarity, not congruence."
+    },
+    {
+      "id": 123,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-1",
+      "lesson_title": "Congruence",
+      "question": "Two triangles are congruent if two angles and the included side of one equal the corresponding parts of the other. This case is:",
+      "options": [
+        "AAS",
+        "SAS",
+        "ASA",
+        "SSS"
+      ],
+      "answer_index": 2,
+      "answer": "ASA",
+      "explanation": "Angle–Side–Angle."
+    },
+    {
+      "id": 124,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-1",
+      "lesson_title": "Congruence",
+      "question": "If AB = DE, ∠B = ∠E and BC = EF, then △ABC ≡ △DEF by:",
+      "options": [
+        "RHS",
+        "ASA",
+        "SSS",
+        "SAS"
+      ],
+      "answer_index": 3,
+      "answer": "SAS",
+      "explanation": "Two sides and the included angle."
+    },
+    {
+      "id": 125,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-1",
+      "lesson_title": "Congruence",
+      "question": "Two right-angled triangles are congruent if:",
+      "options": [
+        "the hypotenuse and a side of one equal those of the other",
+        "their areas are equal",
+        "their acute angles are equal",
+        "one leg of each is equal"
+      ],
+      "answer_index": 0,
+      "answer": "the hypotenuse and a side of one equal those of the other",
+      "explanation": "This is the RHS case."
+    },
+    {
+      "id": 126,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-1",
+      "lesson_title": "Congruence",
+      "question": "If △ABC ≡ △DEF, then m(∠A) equals:",
+      "options": [
+        "m(∠E)",
+        "m(∠D)",
+        "m(∠F)",
+        "90°"
+      ],
+      "answer_index": 1,
+      "answer": "m(∠D)",
+      "explanation": "Corresponding vertices are written in the same order."
+    },
+    {
+      "id": 127,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-1",
+      "lesson_title": "Congruence",
+      "question": "The minimum number of congruent elements needed to prove two triangles congruent (including at least one side) is:",
+      "options": [
+        "2",
+        "4",
+        "3",
+        "6"
+      ],
+      "answer_index": 2,
+      "answer": "3",
+      "explanation": "Three elements, at least one of which is a side."
+    },
+    {
+      "id": 128,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-1",
+      "lesson_title": "Congruence",
+      "question": "Two polygons are congruent if:",
+      "options": [
+        "they have equal perimeters only",
+        "they have the same number of sides only",
+        "they have equal areas only",
+        "corresponding sides and corresponding angles are congruent"
+      ],
+      "answer_index": 3,
+      "answer": "corresponding sides and corresponding angles are congruent",
+      "explanation": "Both conditions must be satisfied."
+    },
+    {
+      "id": 129,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-1",
+      "lesson_title": "Congruence",
+      "question": "If △ABC ≡ △DEF with AB = x + 6 and DE = 9, then x =",
+      "options": [
+        "3",
+        "9",
+        "6",
+        "15"
+      ],
+      "answer_index": 0,
+      "answer": "3",
+      "explanation": "AB = DE, so x + 6 = 9."
+    },
+    {
+      "id": 130,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-1",
+      "lesson_title": "Congruence",
+      "question": "Two line segments are congruent if:",
+      "options": [
+        "they have the same midpoint",
+        "they have equal lengths",
+        "they are perpendicular",
+        "they are parallel"
+      ],
+      "answer_index": 1,
+      "answer": "they have equal lengths",
+      "explanation": "Congruent segments have equal length."
+    },
+    {
+      "id": 131,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-1",
+      "lesson_title": "Congruence",
+      "question": "If AB = DE, BC = EF and AC = DF, the triangles are congruent by:",
+      "options": [
+        "ASA",
+        "AAS",
+        "SSS",
+        "SAS"
+      ],
+      "answer_index": 2,
+      "answer": "SSS",
+      "explanation": "Three pairs of equal sides."
+    },
+    {
+      "id": 132,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-2",
+      "lesson_title": "Pythagoras' Theorem and Its Converse",
+      "question": "In a right-angled triangle with legs 3 cm and 4 cm, the hypotenuse is:",
+      "options": [
+        "6 cm",
+        "7 cm",
+        "√7 cm",
+        "5 cm"
+      ],
+      "answer_index": 3,
+      "answer": "5 cm",
+      "explanation": "√(9 + 16) = 5."
+    },
+    {
+      "id": 133,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-2",
+      "lesson_title": "Pythagoras' Theorem and Its Converse",
+      "question": "A right-angled triangle has hypotenuse 13 cm and one leg 5 cm. The other leg is:",
+      "options": [
+        "12 cm",
+        "√194 cm",
+        "8 cm",
+        "18 cm"
+      ],
+      "answer_index": 0,
+      "answer": "12 cm",
+      "explanation": "√(169 − 25) = 12."
+    },
+    {
+      "id": 134,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-2",
+      "lesson_title": "Pythagoras' Theorem and Its Converse",
+      "question": "Which of the following is a Pythagorean triple?",
+      "options": [
+        "4, 5, 6",
+        "6, 8, 10",
+        "2, 3, 4",
+        "5, 6, 7"
+      ],
+      "answer_index": 1,
+      "answer": "6, 8, 10",
+      "explanation": "36 + 64 = 100."
+    },
+    {
+      "id": 135,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-2",
+      "lesson_title": "Pythagoras' Theorem and Its Converse",
+      "question": "A triangle with sides 6 cm, 7 cm and 8 cm is:",
+      "options": [
+        "right-angled",
+        "obtuse-angled",
+        "acute-angled",
+        "equilateral"
+      ],
+      "answer_index": 2,
+      "answer": "acute-angled",
+      "explanation": "8² = 64 < 6² + 7² = 85."
+    },
+    {
+      "id": 136,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-2",
+      "lesson_title": "Pythagoras' Theorem and Its Converse",
+      "question": "A triangle with sides 4 cm, 5 cm and 7 cm is:",
+      "options": [
+        "isosceles",
+        "right-angled",
+        "acute-angled",
+        "obtuse-angled"
+      ],
+      "answer_index": 3,
+      "answer": "obtuse-angled",
+      "explanation": "7² = 49 > 4² + 5² = 41."
+    },
+    {
+      "id": 137,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-2",
+      "lesson_title": "Pythagoras' Theorem and Its Converse",
+      "question": "A triangle with sides 8 cm, 15 cm and 17 cm is:",
+      "options": [
+        "right-angled",
+        "acute-angled",
+        "equilateral",
+        "obtuse-angled"
+      ],
+      "answer_index": 0,
+      "answer": "right-angled",
+      "explanation": "64 + 225 = 289 = 17²."
+    },
+    {
+      "id": 138,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-2",
+      "lesson_title": "Pythagoras' Theorem and Its Converse",
+      "question": "Which set of lengths CANNOT be the sides of a right-angled triangle?",
+      "options": [
+        "8, 15, 17",
+        "5, 12, 14",
+        "3, 4, 5",
+        "5, 12, 13"
+      ],
+      "answer_index": 1,
+      "answer": "5, 12, 14",
+      "explanation": "25 + 144 = 169 ≠ 196."
+    },
+    {
+      "id": 139,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-2",
+      "lesson_title": "Pythagoras' Theorem and Its Converse",
+      "question": "The perimeter of a right-angled triangle with legs 6 cm and 8 cm is:",
+      "options": [
+        "20 cm",
+        "14 cm",
+        "24 cm",
+        "48 cm"
+      ],
+      "answer_index": 2,
+      "answer": "24 cm",
+      "explanation": "Hypotenuse = 10, so 6 + 8 + 10 = 24."
+    },
+    {
+      "id": 140,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-2",
+      "lesson_title": "Pythagoras' Theorem and Its Converse",
+      "question": "The diagonal of a rectangle with sides 12 cm and 5 cm is:",
+      "options": [
+        "√119 cm",
+        "7 cm",
+        "17 cm",
+        "13 cm"
+      ],
+      "answer_index": 3,
+      "answer": "13 cm",
+      "explanation": "√(144 + 25) = 13."
+    },
+    {
+      "id": 141,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-2",
+      "lesson_title": "Pythagoras' Theorem and Its Converse",
+      "question": "A 10 m ladder reaches 8 m up a vertical wall. The distance from the foot of the ladder to the wall is:",
+      "options": [
+        "6 m",
+        "2 m",
+        "√164 m",
+        "4 m"
+      ],
+      "answer_index": 0,
+      "answer": "6 m",
+      "explanation": "√(100 − 64) = 6."
+    },
+    {
+      "id": 142,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-2",
+      "lesson_title": "Pythagoras' Theorem and Its Converse",
+      "question": "The converse of Pythagoras' theorem states that:",
+      "options": [
+        "the hypotenuse is the shortest side",
+        "if the sum of the squares of two sides equals the square of the third side, the triangle is right-angled",
+        "the sum of the angles is 180°",
+        "every triangle has a right angle"
+      ],
+      "answer_index": 1,
+      "answer": "if the sum of the squares of two sides equals the square of the third side, the triangle is right-angled",
+      "explanation": "This is the statement of the converse."
+    },
+    {
+      "id": 143,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-2",
+      "lesson_title": "Pythagoras' Theorem and Its Converse",
+      "question": "In △ABC, if c is the longest side and c² > a² + b², the triangle is:",
+      "options": [
+        "right-angled",
+        "equilateral",
+        "obtuse-angled",
+        "acute-angled"
+      ],
+      "answer_index": 2,
+      "answer": "obtuse-angled",
+      "explanation": "Pythagoras' inequality."
+    },
+    {
+      "id": 144,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-3",
+      "lesson_title": "Applications of Parallelism",
+      "question": "The midsegment of a triangle is:",
+      "options": [
+        "twice the third side",
+        "perpendicular to the third side",
+        "parallel to the third side and equal to it",
+        "parallel to the third side and half its length"
+      ],
+      "answer_index": 3,
+      "answer": "parallel to the third side and half its length",
+      "explanation": "This is the midsegment theorem."
+    },
+    {
+      "id": 145,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-3",
+      "lesson_title": "Applications of Parallelism",
+      "question": "In △ABC, D and E are the midpoints of AB and AC. If BC = 12 cm, then DE =",
+      "options": [
+        "6 cm",
+        "24 cm",
+        "3 cm",
+        "12 cm"
+      ],
+      "answer_index": 0,
+      "answer": "6 cm",
+      "explanation": "DE is a midsegment = ½ BC."
+    },
+    {
+      "id": 146,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-3",
+      "lesson_title": "Applications of Parallelism",
+      "question": "In △ABC, D and E are the midpoints of AB and AC. If DE = 5 cm, then BC =",
+      "options": [
+        "2.5 cm",
+        "10 cm",
+        "5 cm",
+        "20 cm"
+      ],
+      "answer_index": 1,
+      "answer": "10 cm",
+      "explanation": "BC = 2 × DE."
+    },
+    {
+      "id": 147,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-3",
+      "lesson_title": "Applications of Parallelism",
+      "question": "The perimeter of △ABC is 30 cm. The perimeter of the triangle formed by joining the midpoints of its sides is:",
+      "options": [
+        "30 cm",
+        "60 cm",
+        "15 cm",
+        "10 cm"
+      ],
+      "answer_index": 2,
+      "answer": "15 cm",
+      "explanation": "Each side of the new triangle is half the corresponding side."
+    },
+    {
+      "id": 148,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-3",
+      "lesson_title": "Applications of Parallelism",
+      "question": "A line drawn from the midpoint of one side of a triangle parallel to another side:",
+      "options": [
+        "is equal to the third side",
+        "is perpendicular to the third side",
+        "bisects the angle",
+        "bisects the third side"
+      ],
+      "answer_index": 3,
+      "answer": "bisects the third side",
+      "explanation": "This is a theorem on parallelism in triangles."
+    },
+    {
+      "id": 149,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-3",
+      "lesson_title": "Applications of Parallelism",
+      "question": "If a transversal cuts several parallel lines into equal parts, then any other transversal cut by the same lines:",
+      "options": [
+        "is also divided into equal parts",
+        "is divided into unequal parts",
+        "is perpendicular to them",
+        "is parallel to them"
+      ],
+      "answer_index": 0,
+      "answer": "is also divided into equal parts",
+      "explanation": "Theorem: parallel lines cutting equal parts on one transversal cut equal parts on any transversal."
+    },
+    {
+      "id": 150,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-3",
+      "lesson_title": "Applications of Parallelism",
+      "question": "A ladder is shaped like an isosceles triangle. A horizontal bar joins the midpoints of its legs and is 0.75 m long. The distance between the feet of the ladder is:",
+      "options": [
+        "0.75 m",
+        "1.5 m",
+        "0.375 m",
+        "3 m"
+      ],
+      "answer_index": 1,
+      "answer": "1.5 m",
+      "explanation": "The bar is a midsegment, so the base = 2 × 0.75."
+    },
+    {
+      "id": 151,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-3",
+      "lesson_title": "Applications of Parallelism",
+      "question": "If the perimeter of the triangle formed by the midpoints of the sides of △ABC is 18 cm, the perimeter of △ABC is:",
+      "options": [
+        "9 cm",
+        "18 cm",
+        "36 cm",
+        "72 cm"
+      ],
+      "answer_index": 2,
+      "answer": "36 cm",
+      "explanation": "The perimeter of △ABC is twice that of the midpoint triangle."
+    },
+    {
+      "id": 152,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-4",
+      "lesson_title": "Medians of the Triangle",
+      "question": "The number of medians in any triangle is:",
+      "options": [
+        "6",
+        "1",
+        "2",
+        "3"
+      ],
+      "answer_index": 3,
+      "answer": "3",
+      "explanation": "One median from each vertex."
+    },
+    {
+      "id": 153,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-4",
+      "lesson_title": "Medians of the Triangle",
+      "question": "The centroid of a triangle divides each median in the ratio (from the vertex):",
+      "options": [
+        "2 : 1",
+        "1 : 1",
+        "1 : 2",
+        "3 : 1"
+      ],
+      "answer_index": 0,
+      "answer": "2 : 1",
+      "explanation": "The part near the vertex is twice the part near the side."
+    },
+    {
+      "id": 154,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-4",
+      "lesson_title": "Medians of the Triangle",
+      "question": "In △ABC, AD is a median of length 12 cm and G is the centroid. Then AG =",
+      "options": [
+        "4 cm",
+        "8 cm",
+        "6 cm",
+        "9 cm"
+      ],
+      "answer_index": 1,
+      "answer": "8 cm",
+      "explanation": "AG = ⅔ × 12."
+    },
+    {
+      "id": 155,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-4",
+      "lesson_title": "Medians of the Triangle",
+      "question": "If G is the centroid of △ABC, BG = 10 cm and BE is a median, then BE =",
+      "options": [
+        "20 cm",
+        "30 cm",
+        "15 cm",
+        "5 cm"
+      ],
+      "answer_index": 2,
+      "answer": "15 cm",
+      "explanation": "BG = ⅔ BE, so BE = 15."
+    },
+    {
+      "id": 156,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-4",
+      "lesson_title": "Medians of the Triangle",
+      "question": "In a right-angled triangle, the length of the median from the right angle equals:",
+      "options": [
+        "a third of the hypotenuse",
+        "the hypotenuse",
+        "twice the hypotenuse",
+        "half the hypotenuse"
+      ],
+      "answer_index": 3,
+      "answer": "half the hypotenuse",
+      "explanation": "Median to the hypotenuse = ½ hypotenuse."
+    },
+    {
+      "id": 157,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-4",
+      "lesson_title": "Medians of the Triangle",
+      "question": "In △ABC right-angled at A, BC = 14 cm and D is the midpoint of BC. Then AD =",
+      "options": [
+        "7 cm",
+        "14 cm",
+        "28 cm",
+        "3.5 cm"
+      ],
+      "answer_index": 0,
+      "answer": "7 cm",
+      "explanation": "AD = ½ BC."
+    },
+    {
+      "id": 158,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-4",
+      "lesson_title": "Medians of the Triangle",
+      "question": "If the median from a vertex equals half the opposite side, the angle at that vertex is:",
+      "options": [
+        "120°",
+        "90°",
+        "45°",
+        "60°"
+      ],
+      "answer_index": 1,
+      "answer": "90°",
+      "explanation": "The converse of the right-triangle median theorem."
+    },
+    {
+      "id": 159,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-4",
+      "lesson_title": "Medians of the Triangle",
+      "question": "The medians of a triangle intersect at a point called:",
+      "options": [
+        "the orthocenter",
+        "the circumcenter",
+        "the centroid",
+        "the vertex"
+      ],
+      "answer_index": 2,
+      "answer": "the centroid",
+      "explanation": "It is also the balance point of the triangle."
+    },
+    {
+      "id": 160,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-4",
+      "lesson_title": "Medians of the Triangle",
+      "question": "If G is the centroid of △ABC and GD = 4 cm where AD is a median, then AG =",
+      "options": [
+        "12 cm",
+        "4 cm",
+        "6 cm",
+        "8 cm"
+      ],
+      "answer_index": 3,
+      "answer": "8 cm",
+      "explanation": "AG = 2 × GD."
+    },
+    {
+      "id": 161,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-4",
+      "lesson_title": "Medians of the Triangle",
+      "question": "A median of a triangle is a line segment joining:",
+      "options": [
+        "a vertex to the midpoint of the opposite side",
+        "a vertex perpendicular to the opposite side",
+        "two vertices",
+        "two midpoints"
+      ],
+      "answer_index": 0,
+      "answer": "a vertex to the midpoint of the opposite side",
+      "explanation": "Definition of a median."
+    },
+    {
+      "id": 162,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-5",
+      "lesson_title": "Isosceles Triangle",
+      "question": "In an isosceles triangle, the base angles are:",
+      "options": [
+        "always 60°",
+        "congruent",
+        "supplementary",
+        "complementary"
+      ],
+      "answer_index": 1,
+      "answer": "congruent",
+      "explanation": "Isosceles triangle theorem."
+    },
+    {
+      "id": 163,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-5",
+      "lesson_title": "Isosceles Triangle",
+      "question": "The vertex angle of an isosceles triangle measures 40°. Each base angle measures:",
+      "options": [
+        "40°",
+        "80°",
+        "70°",
+        "140°"
+      ],
+      "answer_index": 2,
+      "answer": "70°",
+      "explanation": "(180 − 40) ÷ 2 = 70."
+    },
+    {
+      "id": 164,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-5",
+      "lesson_title": "Isosceles Triangle",
+      "question": "Each base angle of an isosceles triangle is 50°. The vertex angle is:",
+      "options": [
+        "100°",
+        "40°",
+        "50°",
+        "80°"
+      ],
+      "answer_index": 3,
+      "answer": "80°",
+      "explanation": "180 − 2 × 50 = 80."
+    },
+    {
+      "id": 165,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-5",
+      "lesson_title": "Isosceles Triangle",
+      "question": "If two angles of a triangle are congruent, then:",
+      "options": [
+        "the sides opposite them are congruent",
+        "the triangle is scalene",
+        "the triangle is right-angled",
+        "the sides are perpendicular"
+      ],
+      "answer_index": 0,
+      "answer": "the sides opposite them are congruent",
+      "explanation": "Converse of the isosceles triangle theorem."
+    },
+    {
+      "id": 166,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-5",
+      "lesson_title": "Isosceles Triangle",
+      "question": "Each angle of an equilateral triangle measures:",
+      "options": [
+        "90°",
+        "60°",
+        "45°",
+        "30°"
+      ],
+      "answer_index": 1,
+      "answer": "60°",
+      "explanation": "The triangle is equiangular."
+    },
+    {
+      "id": 167,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-5",
+      "lesson_title": "Isosceles Triangle",
+      "question": "An isosceles triangle has sides 3 cm and 7 cm. The third side is:",
+      "options": [
+        "4 cm",
+        "10 cm",
+        "7 cm",
+        "3 cm"
+      ],
+      "answer_index": 2,
+      "answer": "7 cm",
+      "explanation": "3 + 3 < 7 is impossible, so the sides are 7, 7, 3."
+    },
+    {
+      "id": 168,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-5",
+      "lesson_title": "Isosceles Triangle",
+      "question": "The axis of symmetry of a line segment is:",
+      "options": [
+        "the segment itself",
+        "a line through one endpoint",
+        "a line parallel to it",
+        "the perpendicular bisector of the segment"
+      ],
+      "answer_index": 3,
+      "answer": "the perpendicular bisector of the segment",
+      "explanation": "It is perpendicular to the segment and passes through its midpoint."
+    },
+    {
+      "id": 169,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-5",
+      "lesson_title": "Isosceles Triangle",
+      "question": "The number of axes of symmetry of an equilateral triangle is:",
+      "options": [
+        "3",
+        "1",
+        "2",
+        "0"
+      ],
+      "answer_index": 0,
+      "answer": "3",
+      "explanation": "Isosceles has 1, scalene has 0."
+    },
+    {
+      "id": 170,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-5",
+      "lesson_title": "Isosceles Triangle",
+      "question": "In a 30°–60°–90° triangle, the hypotenuse is 10 cm. The side opposite 30° is:",
+      "options": [
+        "5√3 cm",
+        "5 cm",
+        "20 cm",
+        "10 cm"
+      ],
+      "answer_index": 1,
+      "answer": "5 cm",
+      "explanation": "It is half the hypotenuse."
+    },
+    {
+      "id": 171,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-5",
+      "lesson_title": "Isosceles Triangle",
+      "question": "Any point on the axis of symmetry of a segment is:",
+      "options": [
+        "outside the segment",
+        "closer to one endpoint",
+        "equidistant from its endpoints",
+        "at its midpoint only"
+      ],
+      "answer_index": 2,
+      "answer": "equidistant from its endpoints",
+      "explanation": "Corollary of the axis of symmetry."
+    },
+    {
+      "id": 172,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-5",
+      "lesson_title": "Isosceles Triangle",
+      "question": "In an isosceles triangle, the median drawn from the vertex angle is:",
+      "options": [
+        "parallel to the base",
+        "equal to half the base",
+        "longer than the base",
+        "perpendicular to the base and bisects the vertex angle"
+      ],
+      "answer_index": 3,
+      "answer": "perpendicular to the base and bisects the vertex angle",
+      "explanation": "Corollary of the axis of symmetry of an isosceles triangle."
+    },
+    {
+      "id": 173,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-5",
+      "lesson_title": "Isosceles Triangle",
+      "question": "The side of an equilateral triangle is 12 cm. Its axis of symmetry from a vertex divides the opposite side into parts of length:",
+      "options": [
+        "6 cm and 6 cm",
+        "4 cm and 8 cm",
+        "12 cm and 0 cm",
+        "3 cm and 9 cm"
+      ],
+      "answer_index": 0,
+      "answer": "6 cm and 6 cm",
+      "explanation": "The axis is perpendicular to and bisects the base."
+    },
+    {
+      "id": 174,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-6",
+      "lesson_title": "Interior and Exterior Angles of Polygons",
+      "question": "The sum of the interior angles of a convex hexagon is:",
+      "options": [
+        "360°",
+        "720°",
+        "900°",
+        "540°"
+      ],
+      "answer_index": 1,
+      "answer": "720°",
+      "explanation": "(6 − 2) × 180°."
+    },
+    {
+      "id": 175,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-6",
+      "lesson_title": "Interior and Exterior Angles of Polygons",
+      "question": "The sum of the interior angles of a convex pentagon is:",
+      "options": [
+        "720°",
+        "360°",
+        "540°",
+        "180°"
+      ],
+      "answer_index": 2,
+      "answer": "540°",
+      "explanation": "(5 − 2) × 180°."
+    },
+    {
+      "id": 176,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-6",
+      "lesson_title": "Interior and Exterior Angles of Polygons",
+      "question": "The sum of the exterior angles (one at each vertex) of any convex polygon is:",
+      "options": [
+        "(n − 2) × 180°",
+        "720°",
+        "180°",
+        "360°"
+      ],
+      "answer_index": 3,
+      "answer": "360°",
+      "explanation": "It is always 360° regardless of the number of sides."
+    },
+    {
+      "id": 177,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-6",
+      "lesson_title": "Interior and Exterior Angles of Polygons",
+      "question": "The measure of an interior angle of a regular octagon is:",
+      "options": [
+        "135°",
+        "144°",
+        "120°",
+        "150°"
+      ],
+      "answer_index": 0,
+      "answer": "135°",
+      "explanation": "(8 − 2) × 180° ÷ 8 = 135°."
+    },
+    {
+      "id": 178,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-6",
+      "lesson_title": "Interior and Exterior Angles of Polygons",
+      "question": "A regular polygon has exterior angles of 20° each. The number of sides is:",
+      "options": [
+        "16",
+        "18",
+        "12",
+        "20"
+      ],
+      "answer_index": 1,
+      "answer": "18",
+      "explanation": "360 ÷ 20 = 18."
+    },
+    {
+      "id": 179,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-6",
+      "lesson_title": "Interior and Exterior Angles of Polygons",
+      "question": "A convex polygon has interior angles summing to 1260°. The number of sides is:",
+      "options": [
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "answer_index": 2,
+      "answer": "9",
+      "explanation": "(n − 2) × 180 = 1260 → n = 9."
+    },
+    {
+      "id": 180,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-6",
+      "lesson_title": "Interior and Exterior Angles of Polygons",
+      "question": "The number of diagonals of a convex hexagon is:",
+      "options": [
+        "12",
+        "15",
+        "6",
+        "9"
+      ],
+      "answer_index": 3,
+      "answer": "9",
+      "explanation": "n(n − 3)/2 = 6 × 3 / 2."
+    },
+    {
+      "id": 181,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-6",
+      "lesson_title": "Interior and Exterior Angles of Polygons",
+      "question": "The number of diagonals of a convex heptagon is:",
+      "options": [
+        "14",
+        "21",
+        "11",
+        "7"
+      ],
+      "answer_index": 0,
+      "answer": "14",
+      "explanation": "7 × 4 / 2 = 14."
+    },
+    {
+      "id": 182,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-6",
+      "lesson_title": "Interior and Exterior Angles of Polygons",
+      "question": "A regular polygon has interior angles of 150° each. The number of sides is:",
+      "options": [
+        "10",
+        "12",
+        "8",
+        "15"
+      ],
+      "answer_index": 1,
+      "answer": "12",
+      "explanation": "Exterior angle = 30°, so n = 360 ÷ 30 = 12."
+    },
+    {
+      "id": 183,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-6",
+      "lesson_title": "Interior and Exterior Angles of Polygons",
+      "question": "A convex polygon has 35 diagonals. The number of sides is:",
+      "options": [
+        "7",
+        "12",
+        "10",
+        "9"
+      ],
+      "answer_index": 2,
+      "answer": "10",
+      "explanation": "n(n − 3)/2 = 35 → n² − 3n − 70 = 0 → n = 10."
+    },
+    {
+      "id": 184,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-6",
+      "lesson_title": "Interior and Exterior Angles of Polygons",
+      "question": "The measure of an interior angle of a regular decagon is:",
+      "options": [
+        "150°",
+        "108°",
+        "135°",
+        "144°"
+      ],
+      "answer_index": 3,
+      "answer": "144°",
+      "explanation": "(10 − 2) × 180° ÷ 10."
+    },
+    {
+      "id": 185,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-6",
+      "lesson_title": "Interior and Exterior Angles of Polygons",
+      "question": "The measure of an exterior angle of a regular pentagon is:",
+      "options": [
+        "72°",
+        "60°",
+        "108°",
+        "90°"
+      ],
+      "answer_index": 0,
+      "answer": "72°",
+      "explanation": "360 ÷ 5."
+    },
+    {
+      "id": 186,
+      "unit": 3,
+      "unit_title": "Geometry",
+      "lesson": "3-6",
+      "lesson_title": "Interior and Exterior Angles of Polygons",
+      "question": "The number of diagonals in a convex polygon with n sides is:",
+      "options": [
+        "n(n − 1)/2",
+        "n(n − 3)/2",
+        "n(n − 3)",
+        "n(n − 2)/2"
+      ],
+      "answer_index": 1,
+      "answer": "n(n − 3)/2",
+      "explanation": "Each vertex has n − 3 diagonals, and each is counted twice."
+    },
+    {
+      "id": 187,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-1",
+      "lesson_title": "Ascending Cumulative Frequency Table and Its Graphical Representation",
+      "question": "Marks of 20 students are grouped: 10– (3 students), 20– (5), 30– (8), 40– (4). How many students scored less than 30?",
+      "options": [
+        "5",
+        "13",
+        "8",
+        "16"
+      ],
+      "answer_index": 2,
+      "answer": "8",
+      "explanation": "3 + 5 = 8."
+    },
+    {
+      "id": 188,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-1",
+      "lesson_title": "Ascending Cumulative Frequency Table and Its Graphical Representation",
+      "question": "Using the same data (3, 5, 8, 4 for classes starting at 10, 20, 30, 40), how many students scored 30 or more?",
+      "options": [
+        "8",
+        "20",
+        "16",
+        "12"
+      ],
+      "answer_index": 3,
+      "answer": "12",
+      "explanation": "20 − 8 = 12."
+    },
+    {
+      "id": 189,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-1",
+      "lesson_title": "Ascending Cumulative Frequency Table and Its Graphical Representation",
+      "question": "Using the same data, the percentage of students who scored less than 40 is:",
+      "options": [
+        "80%",
+        "60%",
+        "20%",
+        "40%"
+      ],
+      "answer_index": 0,
+      "answer": "80%",
+      "explanation": "16 out of 20 = 80%."
+    },
+    {
+      "id": 190,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-1",
+      "lesson_title": "Ascending Cumulative Frequency Table and Its Graphical Representation",
+      "question": "An ascending cumulative frequency table uses the:",
+      "options": [
+        "centers of the intervals",
+        "upper limits of the intervals",
+        "lower limits of the intervals",
+        "widths of the intervals"
+      ],
+      "answer_index": 1,
+      "answer": "upper limits of the intervals",
+      "explanation": "Each row reads 'less than the upper limit'."
+    },
+    {
+      "id": 191,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-1",
+      "lesson_title": "Ascending Cumulative Frequency Table and Its Graphical Representation",
+      "question": "The last value in an ascending cumulative frequency column equals:",
+      "options": [
+        "the median",
+        "zero",
+        "the total frequency",
+        "the highest interval"
+      ],
+      "answer_index": 2,
+      "answer": "the total frequency",
+      "explanation": "All data are less than the last upper limit."
+    },
+    {
+      "id": 192,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-1",
+      "lesson_title": "Ascending Cumulative Frequency Table and Its Graphical Representation",
+      "question": "The ascending cumulative frequency corresponding to 'less than the lower limit of the first interval' is:",
+      "options": [
+        "the total frequency",
+        "the first frequency",
+        "1",
+        "0"
+      ],
+      "answer_index": 3,
+      "answer": "0",
+      "explanation": "No value lies below the first interval."
+    },
+    {
+      "id": 193,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-1",
+      "lesson_title": "Ascending Cumulative Frequency Table and Its Graphical Representation",
+      "question": "The ascending cumulative frequency curve is drawn by plotting:",
+      "options": [
+        "upper limits against cumulative frequencies",
+        "centers against frequencies",
+        "lower limits against frequencies",
+        "frequencies against frequencies"
+      ],
+      "answer_index": 0,
+      "answer": "upper limits against cumulative frequencies",
+      "explanation": "Points (upper limit, cumulative frequency) are joined."
+    },
+    {
+      "id": 194,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-1",
+      "lesson_title": "Ascending Cumulative Frequency Table and Its Graphical Representation",
+      "question": "A histogram is a graph that represents:",
+      "options": [
+        "a cumulative curve only",
+        "a frequency table with intervals using adjacent bars",
+        "the mean directly",
+        "categories using circles"
+      ],
+      "answer_index": 1,
+      "answer": "a frequency table with intervals using adjacent bars",
+      "explanation": "Bars have equal-width intervals on the horizontal axis."
+    },
+    {
+      "id": 195,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-1",
+      "lesson_title": "Ascending Cumulative Frequency Table and Its Graphical Representation",
+      "question": "The shape of an ascending cumulative frequency curve is:",
+      "options": [
+        "a closed curve",
+        "a horizontal line",
+        "always increasing",
+        "always decreasing"
+      ],
+      "answer_index": 2,
+      "answer": "always increasing",
+      "explanation": "Cumulative frequencies never decrease."
+    },
+    {
+      "id": 196,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-2",
+      "lesson_title": "Measures of Central Tendency of the Frequency Table with Intervals",
+      "question": "For a frequency table with intervals, the arithmetic mean is estimated by:",
+      "options": [
+        "the middle interval",
+        "Σf ÷ Σ(f × x)",
+        "the largest frequency",
+        "Σ(f × x) ÷ Σf, where x is the center of each interval"
+      ],
+      "answer_index": 3,
+      "answer": "Σ(f × x) ÷ Σf, where x is the center of each interval",
+      "explanation": "Use the interval centers as representative values."
+    },
+    {
+      "id": 197,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-2",
+      "lesson_title": "Measures of Central Tendency of the Frequency Table with Intervals",
+      "question": "If Σf = 50 and Σ(f × x) = 800, the arithmetic mean is:",
+      "options": [
+        "16",
+        "40",
+        "0.0625",
+        "850"
+      ],
+      "answer_index": 0,
+      "answer": "16",
+      "explanation": "800 ÷ 50."
+    },
+    {
+      "id": 198,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-2",
+      "lesson_title": "Measures of Central Tendency of the Frequency Table with Intervals",
+      "question": "If the arithmetic mean is 24.5 and Σ(f × x) = 980, then Σf =",
+      "options": [
+        "24",
+        "40",
+        "4",
+        "80"
+      ],
+      "answer_index": 1,
+      "answer": "40",
+      "explanation": "980 ÷ 24.5."
+    },
+    {
+      "id": 199,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-2",
+      "lesson_title": "Measures of Central Tendency of the Frequency Table with Intervals",
+      "question": "The center of the interval 15– (width 10) is:",
+      "options": [
+        "15",
+        "25",
+        "20",
+        "10"
+      ],
+      "answer_index": 2,
+      "answer": "20",
+      "explanation": "(15 + 25) ÷ 2."
+    },
+    {
+      "id": 200,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-2",
+      "lesson_title": "Measures of Central Tendency of the Frequency Table with Intervals",
+      "question": "The order of the median for a table with Σf = 40 is:",
+      "options": [
+        "40",
+        "10",
+        "21",
+        "20"
+      ],
+      "answer_index": 3,
+      "answer": "20",
+      "explanation": "Order = Σf ÷ 2."
+    },
+    {
+      "id": 201,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-2",
+      "lesson_title": "Measures of Central Tendency of the Frequency Table with Intervals",
+      "question": "The order of the median for a table with Σf = 60 is:",
+      "options": [
+        "30",
+        "31",
+        "15",
+        "60"
+      ],
+      "answer_index": 0,
+      "answer": "30",
+      "explanation": "60 ÷ 2."
+    },
+    {
+      "id": 202,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-2",
+      "lesson_title": "Measures of Central Tendency of the Frequency Table with Intervals",
+      "question": "The median of a frequency table with intervals is estimated graphically using:",
+      "options": [
+        "the pie chart",
+        "the ascending cumulative frequency curve",
+        "the histogram only",
+        "the bar chart of centers"
+      ],
+      "answer_index": 1,
+      "answer": "the ascending cumulative frequency curve",
+      "explanation": "Locate the median order on the vertical axis and read the horizontal value."
+    },
+    {
+      "id": 203,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-2",
+      "lesson_title": "Measures of Central Tendency of the Frequency Table with Intervals",
+      "question": "The mode of a frequency table with intervals is estimated using:",
+      "options": [
+        "the range",
+        "the mean",
+        "the histogram",
+        "the cumulative curve"
+      ],
+      "answer_index": 2,
+      "answer": "the histogram",
+      "explanation": "The modal interval has the highest bar."
+    },
+    {
+      "id": 204,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-2",
+      "lesson_title": "Measures of Central Tendency of the Frequency Table with Intervals",
+      "question": "The modal interval is the interval that has:",
+      "options": [
+        "the largest upper limit",
+        "the middle position",
+        "the smallest frequency",
+        "the greatest frequency"
+      ],
+      "answer_index": 3,
+      "answer": "the greatest frequency",
+      "explanation": "Definition of the modal class."
+    },
+    {
+      "id": 205,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-2",
+      "lesson_title": "Measures of Central Tendency of the Frequency Table with Intervals",
+      "question": "Classes 0–, 10–, 20–, 30– (width 10) have frequencies 2, 3, 4, 1. The arithmetic mean is:",
+      "options": [
+        "19",
+        "15",
+        "20",
+        "25"
+      ],
+      "answer_index": 0,
+      "answer": "19",
+      "explanation": "(5×2 + 15×3 + 25×4 + 35×1) ÷ 10 = 190 ÷ 10."
+    },
+    {
+      "id": 206,
+      "unit": 4,
+      "unit_title": "Statistics",
+      "lesson": "4-2",
+      "lesson_title": "Measures of Central Tendency of the Frequency Table with Intervals",
+      "question": "Which of the following are measures of central tendency?",
+      "options": [
+        "median and range",
+        "mean, median and mode",
+        "mode and variance",
+        "range, variance and mean"
+      ],
+      "answer_index": 1,
+      "answer": "mean, median and mode",
+      "explanation": "The three main measures of central tendency."
+    }
+  ]
+};
+
+        function processCurriculum() {
+            const unitsMap = {};
+            masterData.questions.forEach(q => {
+                if (!unitsMap[q.unit]) {
+                    unitsMap[q.unit] = { unitId: `unit_${q.unit}`, unitName: `Unit ${q.unit}: ${q.unit_title}`, lessonsMap: {} };
+                }
+                const lm = unitsMap[q.unit].lessonsMap;
+                if (!lm[q.lesson]) lm[q.lesson] = { id: q.lesson, title: q.lesson_title, questions: [] };
+                lm[q.lesson].questions.push({
+                    id: q.id, questionText: q.question, options: q.options,
+                    correctAnswer: q.answer_index, explanation: q.explanation
+                });
+            });
+            return Object.values(unitsMap).map(u => ({
+                unitId: u.unitId, unitName: u.unitName, lessons: Object.values(u.lessonsMap)
+            }));
+        }
+        const curriculumData = processCurriculum();
+
+        const $ = id => document.getElementById(id);
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const lsDel = k => { try { localStorage.removeItem(k); } catch (e) {} };
+
+$('totalQuestionsBadge').textContent = `Total Questions: ${masterData.total}`;
+$('headerSub').textContent = `Interactive Master Question Bank (${masterData.total} Questions)`;
+
+// ---------- Profile (login) ----------
+let profile = null;
+let currentScore = 0, currentStreak = 0;
+const statKey = k => `mp2:${profile.name.toLowerCase()}:${k}`;
+
+function loadProfile() {
+    try {
+        const p = JSON.parse(lsGet('mp2_profile'));
+        return p && typeof p.name === 'string' && p.name.trim() ? p : null;
+    } catch (e) { return null; }
+}
+
+function updateStats() {
+    $('scoreDisplay').textContent = currentScore;
+    $('streakDisplay').textContent = `🔥 ${currentStreak}`;
+}
+
+function enterApp() {
+    currentScore = parseInt(lsGet(statKey('score'))) || 0;
+    currentStreak = parseInt(lsGet(statKey('streak'))) || 0;
+    $('userDisplay').textContent = profile.name;
+    $('userDisplay').title = profile.name + (profile.cls ? ` - ${profile.cls}` : '');
+    $('welcomeText').textContent = `Welcome, ${profile.name}! 👋 Pick a unit to start.`;
+    $('statsWrap').classList.remove('hidden');
+    updateStats();
+    show('unitSelectionView');
+}
+
+function logout() {
+    lsDel('mp2_profile');
+    profile = null;
+    $('statsWrap').classList.add('hidden');
+    $('nameInput').value = '';
+    $('classInput').value = '';
+    show('loginView');
+}
+
+$('loginForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const name = $('nameInput').value.trim().replace(/\s+/g, ' ');
+    if (!name) {
+        $('loginError').classList.remove('hidden');
+        $('nameInput').focus();
+        return;
+    }
+    $('loginError').classList.add('hidden');
+    profile = { name, cls: $('classInput').value.trim() };
+    lsSet('mp2_profile', JSON.stringify(profile));
+    enterApp();
+});
+
+// ---------- Navigation ----------
+function show(id) {
+    ['loginView', 'unitSelectionView', 'lessonSelectionView', 'quizView']
+        .forEach(v => $(v).classList.toggle('hidden', v !== id));
+    window.scrollTo(0, 0);
+}
+
+let activeUnit = null, currentQuestions = [], currentQuestionIndex = 0;
+let answeredCurrent = false, lessonCorrect = 0, finished = false;
+
+function shuffle(a) {
+    const r = [...a];
+    for (let i = r.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [r[i], r[j]] = [r[j], r[i]];
+    }
+    return r;
+}
+
+function renderUnits() {
+    $('unitsGrid').innerHTML = curriculumData.map(unit => {
+        const totalQ = unit.lessons.reduce((acc, l) => acc + l.questions.length, 0);
+        return `
+        <div onclick="selectUnit('${unit.unitId}')" class="bg-white p-6 rounded-2xl custom-shadow border border-slate-100 hover:border-indigo-500 cursor-pointer transition transform hover:-translate-y-1">
+            <h3 class="text-lg font-bold text-slate-800 mb-2">${unit.unitName}</h3>
+            <div class="flex justify-between items-center text-sm text-slate-500">
+                <span>${unit.lessons.length} Lessons</span>
+                <span class="bg-slate-100 px-2.5 py-0.5 rounded-full text-xs font-semibold text-indigo-600">${totalQ} Questions</span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function selectUnit(unitId) {
+    activeUnit = curriculumData.find(u => u.unitId === unitId);
+    $('selectedUnitTitle').textContent = activeUnit.unitName;
+    $('lessonsGrid').innerHTML = activeUnit.lessons.map(lesson => `
+        <div onclick="startLesson('${lesson.id}')" class="bg-white p-5 rounded-xl border border-slate-200 hover:bg-indigo-50/50 hover:border-indigo-300 cursor-pointer transition flex justify-between items-center">
+            <div>
+                <h4 class="font-bold text-slate-800">Lesson ${lesson.id}: ${lesson.title}</h4>
+                <span class="text-xs text-indigo-600 font-semibold">${lesson.questions.length} Questions</span>
+            </div>
+            <span class="text-indigo-500 font-bold">→</span>
+        </div>`).join('');
+    show('lessonSelectionView');
+}
+
+function backToUnits() { show('unitSelectionView'); }
+function backToLessons() { show('lessonSelectionView'); }
+
+// ---------- Quiz ----------
+function startLesson(lessonId) {
+    const lesson = activeUnit.lessons.find(l => l.id === lessonId);
+    currentQuestions = shuffle(lesson.questions);
+    currentQuestionIndex = 0;
+    lessonCorrect = 0;
+    finished = false;
+    show('quizView');
+    loadQuestion();
+}
+
+function loadQuestion() {
+    if (currentQuestionIndex >= currentQuestions.length) { showResult(); return; }
+    answeredCurrent = false;
+    const q = currentQuestions[currentQuestionIndex];
+    $('questionProgress').textContent = `Question ${currentQuestionIndex + 1} of ${currentQuestions.length}`;
+    $('questionText').textContent = q.questionText;
+    $('explanationContainer').classList.add('hidden');
+    $('nextBtn').classList.add('hidden');
+
+    const box = $('optionsContainer');
+    box.innerHTML = '';
+    q.options.forEach((opt, idx) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'option-btn w-full text-left p-4 rounded-xl border border-slate-200 font-medium transition flex items-center justify-between hover:bg-slate-50';
+        const t = document.createElement('span'); t.textContent = opt;
+        const l = document.createElement('span');
+        l.className = 'text-xs text-slate-400 font-bold';
+        l.textContent = String.fromCharCode(65 + idx);
+        b.append(t, l);
+        b.onclick = () => checkAnswer(idx);
+        box.appendChild(b);
+    });
+}
+
+function checkAnswer(i) {
+    if (answeredCurrent) return;
+    answeredCurrent = true;
+    const q = currentQuestions[currentQuestionIndex];
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach(b => { b.classList.remove('hover:bg-slate-50'); b.disabled = true; });
+    const good = ['bg-emerald-50', 'border-emerald-500', 'text-emerald-700'];
+    const bad = ['bg-rose-50', 'border-rose-500', 'text-rose-700'];
+
+    if (i === q.correctAnswer) {
+        btns[i].classList.add(...good);
+        currentScore += 10; currentStreak += 1; lessonCorrect += 1;
+        if (typeof confetti === 'function') confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+    } else {
+        btns[i].classList.add(...bad);
+        btns[q.correctAnswer].classList.add(...good);
+        currentStreak = 0;
+    }
+    lsSet(statKey('score'), currentScore);
+    lsSet(statKey('streak'), currentStreak);
+    updateStats();
+
+    $('explanationText').textContent = q.explanation;
+    $('explanationContainer').classList.remove('hidden');
+    const last = currentQuestionIndex === currentQuestions.length - 1;
+    $('nextBtn').textContent = last ? 'Finish ✓' : 'Next Question →';
+    $('nextBtn').classList.remove('hidden');
+}
+
+function showResult() {
+    finished = true;
+    const total = currentQuestions.length;
+    $('questionProgress').textContent = 'Lesson complete';
+    $('questionText').textContent = `🎉 Well done, ${profile.name}! You got ${lessonCorrect} / ${total} (${Math.round(lessonCorrect / total * 100)}%)`;
+    $('optionsContainer').innerHTML = '';
+    $('explanationContainer').classList.add('hidden');
+    $('nextBtn').textContent = 'Back to Lessons';
+    $('nextBtn').classList.remove('hidden');
+}
+
+function nextQuestion() {
+    if (finished) { backToLessons(); return; }
+    currentQuestionIndex++;
+    loadQuestion();
+}
+
+// ---------- Scratchpad ----------
+const canvas = $('scratchCanvas');
+const ctx = canvas.getContext('2d');
+let drawing = false, padW = 0;
+
+function resizeCanvas() {
+    const r = canvas.getBoundingClientRect();
+    if (Math.round(r.width) === padW) return;
+    padW = Math.round(r.width);
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = r.width * dpr;
+    canvas.height = r.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 3;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+}
+
+function toggleScratchpad() {
+    const m = $('scratchpadModal');
+    const opening = m.classList.contains('hidden');
+    m.classList.toggle('hidden', !opening);
+    if (opening) resizeCanvas();
+}
+
+function clearCanvas() {
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+}
+
+const pos = e => { const r = canvas.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+canvas.addEventListener('pointerdown', e => {
+    drawing = true; canvas.setPointerCapture(e.pointerId);
+    ctx.beginPath(); ctx.moveTo(...pos(e));
+});
+canvas.addEventListener('pointermove', e => { if (drawing) { ctx.lineTo(...pos(e)); ctx.stroke(); } });
+['pointerup', 'pointercancel'].forEach(t => canvas.addEventListener(t, () => { drawing = false; }));
+$('scratchBackdrop').addEventListener('click', e => { if (e.target === e.currentTarget) toggleScratchpad(); });
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !$('scratchpadModal').classList.contains('hidden')) toggleScratchpad();
+});
+
+// ---------- Start ----------
+renderUnits();
+profile = loadProfile();
+if (profile) enterApp(); else show('loginView');
+
+    </script>
+</body>
+</html>
